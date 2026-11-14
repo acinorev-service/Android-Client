@@ -222,7 +222,15 @@ private fun PlayHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(palette.bar)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        palette.bar,
+                        palette.bar.copy(alpha = 0.65f),
+                        palette.bar.copy(alpha = 0f),
+                    ),
+                ),
+            )
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -280,58 +288,24 @@ private fun PlayToolbar(
             .background(palette.bar)
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
+        val game = uiState.game
+
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AppIcon(
-                kind = AppIconKind.Users,
-                tint = palette.textMuted,
-                modifier = Modifier.size(16.dp),
-            )
-            Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = stringResource(R.string.play_players_count, uiState.players),
-                color = palette.textMuted,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
+                text = game?.description?.takeIf { it.isNotBlank() }
+                    ?: stringResource(R.string.play_no_description),
+                color = palette.textPrimary,
+                fontSize = 13.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
             )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Surface(
-                onClick = onInvite,
-                shape = RoundedCornerShape(10.dp),
-                color = palette.idleContent,
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    AppIcon(
-                        kind = AppIconKind.Plus,
-                        tint = palette.bar,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.play_invite),
-                        color = palette.bar,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.width(10.dp))
+            InviteButton(palette = palette, onInvite = onInvite)
         }
 
-        val game = uiState.game ?: return
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = game.description.ifBlank { stringResource(R.string.play_no_description) },
-            color = palette.textPrimary,
-            fontSize = 13.sp,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        Spacer(modifier = Modifier.height(6.dp))
+        if (game != null) {
+            Spacer(modifier = Modifier.height(6.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             val genreName = genreDisplayName(game.genreSlug, game.genreTitle)
@@ -369,6 +343,37 @@ private fun PlayToolbar(
                     modifier = Modifier.padding(start = 6.dp),
                 )
             }
+        }
+        }
+    }
+}
+
+@Composable
+private fun InviteButton(
+    palette: NavigationPalette,
+    onInvite: () -> Unit,
+) {
+    Surface(
+        onClick = onInvite,
+        shape = RoundedCornerShape(10.dp),
+        color = palette.idleContent,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AppIcon(
+                kind = AppIconKind.Plus,
+                tint = palette.bar,
+                modifier = Modifier.size(14.dp),
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(R.string.play_invite),
+                color = palette.bar,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }

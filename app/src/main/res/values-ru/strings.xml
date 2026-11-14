@@ -200,7 +200,6 @@
     <string name="home_retry">Повторить</string>
 
     <string name="play_title">Игра</string>
-    <string name="play_players_count">Сейчас играют: %1$d</string>
     <string name="play_invite">Пригласить</string>
     <string name="play_invite_title">Пригласить в игру</string>
     <string name="play_invite_hint">Отправьте другу код комнаты или ссылку — он подключится к вашей игровой сессии.</string>
@@ -229,6 +228,7 @@
     <string name="search_error">Не удалось выполнить поиск</string>
     <string name="search_prompt">Введите запрос, чтобы найти игры, людей и студии</string>
 </resources>
+
 
 
 

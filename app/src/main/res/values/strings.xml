@@ -200,7 +200,6 @@
     <string name="home_retry">Retry</string>
 
     <string name="play_title">Game</string>
-    <string name="play_players_count">%1$d playing now</string>
     <string name="play_invite">Invite</string>
     <string name="play_invite_title">Invite to the game</string>
     <string name="play_invite_hint">Share the room code or the link with a friend so they can join your session.</string>
@@ -229,6 +228,7 @@
     <string name="search_error">Search failed</string>
     <string name="search_prompt">Type a query to find games, people and studios</string>
 </resources>
+
 
 
 

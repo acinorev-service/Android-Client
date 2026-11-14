@@ -31,6 +31,8 @@ import ru.fet1sov.akinorev.data.realtime.DefaultRealtimeSocket
 import ru.fet1sov.akinorev.data.realtime.RealtimeSocket
 import ru.fet1sov.akinorev.data.remote.ApiClient
 import ru.fet1sov.akinorev.data.remote.NetworkModule
+import ru.fet1sov.akinorev.data.search.DefaultSearchRepository
+import ru.fet1sov.akinorev.data.search.SearchRepository
 import ru.fet1sov.akinorev.data.settings.AppSettingsRepository
 import ru.fet1sov.akinorev.data.settings.SharedPreferencesAppSettingsRepository
 
@@ -44,6 +46,7 @@ interface AppContainer {
     val libraryRepository: LibraryRepository
     val catalogRepository: CatalogRepository
     val playSessionRepository: PlaySessionRepository
+    val searchRepository: SearchRepository
     val appSettingsRepository: AppSettingsRepository
     val realtimeSocket: RealtimeSocket
     val pushRegistrar: PushRegistrar
@@ -130,6 +133,13 @@ class DefaultAppContainer(
     override val playSessionRepository: PlaySessionRepository by lazy {
         DefaultPlaySessionRepository(
             socket = realtimeSocket,
+            api = networkModule.api,
+            client = apiClient,
+        )
+    }
+
+    override val searchRepository: SearchRepository by lazy {
+        DefaultSearchRepository(
             api = networkModule.api,
             client = apiClient,
         )

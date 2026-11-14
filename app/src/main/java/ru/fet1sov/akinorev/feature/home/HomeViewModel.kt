@@ -33,7 +33,6 @@ data class HomeUiState(
     val isUnavailable: Boolean = false,
     val games: List<GameCardUi> = emptyList(),
     val genres: List<String> = FallbackGenres,
-    val query: String = "",
     val selectedGenre: String = "",
     val isSearchOpen: Boolean = false,
 ) {
@@ -62,18 +61,13 @@ class HomeViewModel(
 
     fun retry() = refresh()
 
-    fun onQueryChange(query: String) {
-        mutableUiState.update { it.copy(query = query) }
-        applyFilters()
-    }
-
     fun openSearch() {
         mutableUiState.update { it.copy(isSearchOpen = true, selectedGenre = "") }
         applyFilters()
     }
 
     fun closeSearch() {
-        mutableUiState.update { it.copy(isSearchOpen = false, query = "") }
+        mutableUiState.update { it.copy(isSearchOpen = false) }
         applyFilters()
     }
 
@@ -85,7 +79,7 @@ class HomeViewModel(
     }
 
     fun clearFilters() {
-        mutableUiState.update { it.copy(query = "", selectedGenre = "") }
+        mutableUiState.update { it.copy(selectedGenre = "") }
         applyFilters()
     }
 
@@ -140,19 +134,10 @@ class HomeViewModel(
     }
 
     private fun applyFilters() {
-        val state = mutableUiState.value
-        val query = state.query.trim().lowercase()
-        val genre = state.selectedGenre
+        val genre = mutableUiState.value.selectedGenre
 
         val filtered = allGames.asSequence()
             .filter { genre.isEmpty() || it.genreSlug == genre }
-            .filter { game ->
-                if (query.isEmpty()) return@filter true
-                game.title.lowercase().contains(query) ||
-                    game.authorUsername.lowercase().contains(query) ||
-                    game.developerName.lowercase().contains(query) ||
-                    game.genreSlug.lowercase().contains(query)
-            }
             .map(CatalogGame::toCardUi)
             .toList()
 

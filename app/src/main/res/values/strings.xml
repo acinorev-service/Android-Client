@@ -192,7 +192,7 @@
     <string name="emojis_unauthorized_description">Your emojis will show up here after you sign in.</string>
 
     <string name="home_title">Game catalog</string>
-    <string name="home_search_placeholder">Search games</string>
+    <string name="home_search_placeholder">Search games, people and studios</string>
     <string name="home_all_genres">All genres</string>
     <string name="home_unavailable">Failed to load the catalog</string>
     <string name="home_empty">No games found</string>
@@ -222,7 +222,14 @@
     <string name="play_developer">Developer</string>
     <string name="play_released">Released</string>
     <string name="play_other_games">More games</string>
+    <string name="search_categories_games">Games</string>
+    <string name="search_categories_developers">Developers</string>
+    <string name="search_categories_users">People</string>
+    <string name="search_show_more">Show more</string>
+    <string name="search_error">Search failed</string>
+    <string name="search_prompt">Type a query to find games, people and studios</string>
 </resources>
+
 
 
 

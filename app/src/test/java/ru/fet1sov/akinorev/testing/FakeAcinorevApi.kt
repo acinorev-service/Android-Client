@@ -43,6 +43,9 @@ import ru.fet1sov.akinorev.data.remote.dto.PushDeviceResponse
 import ru.fet1sov.akinorev.data.remote.dto.RefreshRequest
 import ru.fet1sov.akinorev.data.remote.dto.RegisterPushDeviceRequest
 import ru.fet1sov.akinorev.data.remote.dto.RegisterRequest
+import ru.fet1sov.akinorev.data.remote.dto.SearchCategoryDto
+import ru.fet1sov.akinorev.data.remote.dto.SearchItemDto
+import ru.fet1sov.akinorev.data.remote.dto.SearchPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.TokenPairDto
 import ru.fet1sov.akinorev.data.remote.dto.UnregisterPushDeviceRequest
 import ru.fet1sov.akinorev.data.remote.dto.UpdateLocaleRequest
@@ -87,6 +90,7 @@ class FakeAcinorevApi : AcinorevApi {
         { _, _, _, _ -> error(404) }
     var onGetGame: suspend (String) -> Response<ApiEnvelope<CatalogGamePayloadDto>> = { error(404) }
     var onGetGenres: suspend () -> Response<ApiEnvelope<CatalogGenresPayloadDto>> = { error(404) }
+    var onSearch: suspend (String, Int) -> Response<ApiEnvelope<SearchPayloadDto>> = { _, _ -> error(404) }
     var onGetGamePlayers: suspend (String) -> Response<ApiEnvelope<GamePlayersPayloadDto>> = { error(404) }
     var onStartPlay: suspend (String) -> Response<ApiEnvelope<PlayStatePayloadDto>> = { error(404) }
     var onEndPlay: suspend (String) -> Response<ApiEnvelope<PlayStatePayloadDto>> = { error(404) }
@@ -171,6 +175,9 @@ class FakeAcinorevApi : AcinorevApi {
     override suspend fun getGame(id: String): Response<ApiEnvelope<CatalogGamePayloadDto>> = onGetGame(id)
 
     override suspend fun getGenres(): Response<ApiEnvelope<CatalogGenresPayloadDto>> = onGetGenres()
+
+    override suspend fun search(query: String, limit: Int): Response<ApiEnvelope<SearchPayloadDto>> =
+        onSearch(query, limit)
 
     override suspend fun getGamePlayers(id: String): Response<ApiEnvelope<GamePlayersPayloadDto>> =
         onGetGamePlayers(id)
@@ -371,4 +378,63 @@ object ApiFixtures {
         gameId: String = "game-1",
         playing: Boolean = true,
     ): PlayStatePayloadDto = PlayStatePayloadDto(gameId = gameId, playing = playing, ok = true)
+
+    fun searchGameItem(
+        id: String = "game-1",
+        title: String = "Neon Runner",
+        genreSlug: String = "arcade",
+    ): SearchItemDto = SearchItemDto(
+        id = id,
+        title = title,
+        description = "A neon runner",
+        banner = "http://localhost:8090/f/banner.png",
+        icon = "http://localhost:8090/f/icon.png",
+        genre = CatalogGenreDto(slug = genreSlug, title = "genres.$genreSlug"),
+        platforms = listOf(CatalogPlatformDto(slug = "mobile", title = "platforms.mobile")),
+        category = "games",
+        score = 90,
+    )
+
+    fun searchUserItem(
+        id: String = user.id,
+        username: String = user.username,
+        bio: String = "Runner",
+    ): SearchItemDto = SearchItemDto(
+        id = id,
+        username = username,
+        avatar = "http://localhost:8090/f/avatar.png",
+        bio = bio,
+        category = "users",
+        score = 70,
+    )
+
+    fun searchDeveloperItem(
+        id: String = "developer-1",
+        name: String = "Acinorev Studio",
+        handle: String = "acinorev",
+    ): SearchItemDto = SearchItemDto(
+        id = id,
+        name = name,
+        handle = handle,
+        avatar = "http://localhost:8090/f/dev.png",
+        category = "developers",
+        score = 80,
+    )
+
+    fun searchPayload(
+        query: String = "neon",
+        games: List<SearchItemDto> = listOf(searchGameItem()),
+        developers: List<SearchItemDto> = listOf(searchDeveloperItem()),
+        users: List<SearchItemDto> = listOf(searchUserItem()),
+    ): SearchPayloadDto = SearchPayloadDto(
+        query = query,
+        categories = listOf(
+            SearchCategoryDto(category = "games", items = games),
+            SearchCategoryDto(category = "developers", items = developers),
+            SearchCategoryDto(category = "users", items = users),
+        ).filter { it.items.isNotEmpty() },
+        total = games.size + developers.size + users.size,
+        limit = 20,
+        offset = 0,
+    )
 }

@@ -35,6 +35,7 @@ import ru.fet1sov.akinorev.data.remote.dto.PushDeviceResponse
 import ru.fet1sov.akinorev.data.remote.dto.RefreshRequest
 import ru.fet1sov.akinorev.data.remote.dto.RegisterPushDeviceRequest
 import ru.fet1sov.akinorev.data.remote.dto.RegisterRequest
+import ru.fet1sov.akinorev.data.remote.dto.SearchPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.TokenPairDto
 import ru.fet1sov.akinorev.data.remote.dto.UnregisterPushDeviceRequest
 import ru.fet1sov.akinorev.data.remote.dto.UpdateLocaleRequest
@@ -105,6 +106,12 @@ interface AcinorevApi {
 
     @GET("genres")
     suspend fun getGenres(): Response<ApiEnvelope<CatalogGenresPayloadDto>>
+
+    @GET("search")
+    suspend fun search(
+        @Query("q") query: String,
+        @Query("limit") limit: Int,
+    ): Response<ApiEnvelope<SearchPayloadDto>>
 
     @GET("play/{id}/players")
     suspend fun getGamePlayers(

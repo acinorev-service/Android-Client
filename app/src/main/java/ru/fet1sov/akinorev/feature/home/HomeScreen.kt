@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,10 +33,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -57,8 +61,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.fet1sov.akinorev.R
+import ru.fet1sov.akinorev.feature.search.SearchUiState
+import ru.fet1sov.akinorev.feature.search.SearchViewModel
+import ru.fet1sov.akinorev.model.SearchCategory
+import ru.fet1sov.akinorev.model.SearchResult
 import ru.fet1sov.akinorev.ui.components.RemoteImage
 import ru.fet1sov.akinorev.ui.components.SkeletonBlock
+import ru.fet1sov.akinorev.ui.components.UserAvatar
 import ru.fet1sov.akinorev.ui.components.resolveMediaUrl
 import ru.fet1sov.akinorev.ui.format.genreIconKind
 import ru.fet1sov.akinorev.ui.format.genreLabelRes
@@ -70,13 +79,21 @@ import ru.fet1sov.akinorev.ui.navigation.navigationPalette
 @Composable
 fun HomeScreen(
     onPlay: (String, String) -> Unit,
+    onOpenUser: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
+    searchViewModel: SearchViewModel = viewModel(factory = SearchViewModel.Factory),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchState by searchViewModel.uiState.collectAsStateWithLifecycle()
     val palette = navigationPalette()
 
     LaunchedEffect(Unit) { viewModel.refresh() }
+
+    val closeSearch = {
+        searchViewModel.clear()
+        viewModel.closeSearch()
+    }
 
     AnimatedContent(
         targetState = uiState.isSearchOpen,
@@ -98,12 +115,15 @@ fun HomeScreen(
     ) { searchOpen ->
         if (searchOpen) {
             SearchPane(
-                uiState = uiState,
+                state = searchState,
                 palette = palette,
-                onQueryChange = viewModel::onQueryChange,
-                onClose = viewModel::closeSearch,
-                onRetry = viewModel::retry,
+                onQueryChange = searchViewModel::onQueryChange,
+                onSubmit = searchViewModel::submit,
+                onLoadMore = searchViewModel::loadMore,
+                onRetry = searchViewModel::retry,
+                onClose = closeSearch,
                 onPlay = onPlay,
+                onOpenUser = onOpenUser,
             )
         } else {
             CatalogPane(
@@ -198,12 +218,15 @@ private fun CatalogPane(
 
 @Composable
 private fun SearchPane(
-    uiState: HomeUiState,
+    state: SearchUiState,
     palette: NavigationPalette,
     onQueryChange: (String) -> Unit,
-    onClose: () -> Unit,
+    onSubmit: () -> Unit,
+    onLoadMore: () -> Unit,
     onRetry: () -> Unit,
+    onClose: () -> Unit,
     onPlay: (String, String) -> Unit,
+    onOpenUser: (String) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -229,7 +252,7 @@ private fun SearchPane(
             Spacer(modifier = Modifier.width(4.dp))
 
             OutlinedTextField(
-                value = uiState.query,
+                value = state.query,
                 onValueChange = onQueryChange,
                 modifier = Modifier
                     .weight(1f)
@@ -248,6 +271,7 @@ private fun SearchPane(
                     onSearch = {
                         focusManager.clearFocus()
                         keyboard?.hide()
+                        onSubmit()
                     },
                 ),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -261,7 +285,7 @@ private fun SearchPane(
                 ),
             )
 
-            if (uiState.query.isNotEmpty()) {
+            if (state.query.isNotEmpty()) {
                 SearchIconButton(
                     icon = AppIconKind.Close,
                     palette = palette,
@@ -271,25 +295,23 @@ private fun SearchPane(
         }
 
         when {
-            uiState.isLoading -> Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                repeat(SkeletonCards) {
-                    SkeletonBlock(height = 64.dp, shape = RoundedCornerShape(12.dp))
-                }
-            }
+            state.isSearching && !state.hasResults -> SearchSkeleton(palette = palette)
 
-            uiState.isUnavailable -> CatalogMessage(
-                title = stringResource(R.string.home_unavailable),
+            state.hasError -> CatalogMessage(
+                title = stringResource(R.string.search_error),
                 palette = palette,
                 action = stringResource(R.string.home_retry),
                 onAction = onRetry,
             )
 
-            uiState.games.isEmpty() -> CatalogMessage(
+            state.query.isBlank() -> CatalogMessage(
+                title = stringResource(R.string.search_prompt),
+                palette = palette,
+                action = null,
+                onAction = null,
+            )
+
+            state.isEmpty -> CatalogMessage(
                 title = stringResource(R.string.home_empty),
                 hint = stringResource(R.string.home_empty_hint),
                 palette = palette,
@@ -299,22 +321,277 @@ private fun SearchPane(
 
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 24.dp),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(uiState.games, key = { it.id }) { game ->
-                    SearchResultRow(
-                        game = game,
-                        palette = palette,
-                        onClick = {
-                            keyboard?.hide()
-                            onPlay(game.id, game.title)
-                        },
-                    )
+                state.groups.forEach { group ->
+                    item(key = "header-${group.category.name}") {
+                        Text(
+                            text = stringResource(categoryTitleRes(group.category)).uppercase(),
+                            color = palette.textPrimary,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.padding(top = 10.dp, bottom = 2.dp),
+                        )
+                    }
+
+                    items(group.results, key = { result -> resultKey(result) }) { result ->
+                        SearchResultRow(
+                            result = result,
+                            palette = palette,
+                            onPlay = onPlay,
+                            onOpenUser = onOpenUser,
+                        )
+                    }
+                }
+
+                if (state.hasMore) {
+                    item(key = "load-more") {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    keyboard?.hide()
+                                    onLoadMore()
+                                },
+                            ) {
+                                if (state.isSearching) {
+                                    CircularProgressIndicator(
+                                        color = palette.textPrimary,
+                                        modifier = Modifier.size(18.dp),
+                                        strokeWidth = 2.dp,
+                                    )
+                                } else {
+                                    Text(
+                                        text = stringResource(R.string.search_show_more),
+                                        color = palette.textPrimary,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SearchSkeleton(palette: NavigationPalette) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        SkeletonBlock(height = 16.dp, width = 120.dp)
+        repeat(SkeletonRows) {
+            SkeletonBlock(height = 60.dp, shape = RoundedCornerShape(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun SearchResultRow(
+    result: SearchResult,
+    palette: NavigationPalette,
+    onPlay: (String, String) -> Unit,
+    onOpenUser: (String) -> Unit,
+) {
+    when (result) {
+        is SearchResult.Game -> SearchRowSurface(
+            palette = palette,
+            onClick = { onPlay(result.game.id, result.game.title) },
+        ) {
+            GameResultArtwork(game = result, palette = palette)
+            SearchRowText(
+                title = result.game.title,
+                subtitle = genreLabelRes(result.game.genreSlug)?.let { stringResource(it) }.orEmpty(),
+                palette = palette,
+            )
+            PlayBadge(palette = palette)
+        }
+
+        is SearchResult.User -> SearchRowSurface(
+            palette = palette,
+            onClick = { onOpenUser(result.username) },
+        ) {
+            UserAvatar(
+                avatar = result.avatarPath,
+                userId = result.id,
+                username = result.username,
+                size = 44.dp,
+            )
+            SearchRowText(
+                title = result.username,
+                subtitle = result.bio,
+                palette = palette,
+                prefix = "@",
+            )
+        }
+
+        is SearchResult.Developer -> SearchRowSurface(palette = palette) {
+            if (result.avatarPath.isNotBlank()) {
+                RemoteImage(
+                    url = resolveMediaUrl(result.avatarPath),
+                    contentDescription = result.name,
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    placeholder = { DeveloperPlaceholder(palette = palette) },
+                )
+            } else {
+                DeveloperPlaceholder(palette = palette)
+            }
+            SearchRowText(
+                title = result.name,
+                subtitle = result.handle.takeIf { it.isNotBlank() }?.let { "@$it" }.orEmpty(),
+                palette = palette,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchRowSurface(
+    palette: NavigationPalette,
+    onClick: (() -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val shape = RoundedCornerShape(12.dp)
+    val contentModifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
+
+    if (onClick != null) {
+        Surface(
+            onClick = onClick,
+            shape = shape,
+            color = palette.bar,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(modifier = contentModifier, verticalAlignment = Alignment.CenterVertically) {
+                content()
+            }
+        }
+    } else {
+        Surface(
+            shape = shape,
+            color = palette.bar,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(modifier = contentModifier, verticalAlignment = Alignment.CenterVertically) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun GameResultArtwork(
+    game: SearchResult.Game,
+    palette: NavigationPalette,
+) {
+    val path = game.game.iconPath.takeIf { it.isNotBlank() } ?: game.game.bannerPath
+    if (path.isBlank()) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(palette.barBorder.copy(alpha = 0.35f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            AppIcon(
+                kind = AppIconKind.Games,
+                tint = palette.textMuted,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        return
+    }
+
+    RemoteImage(
+        url = resolveMediaUrl(path),
+        contentDescription = game.game.title,
+        modifier = Modifier.size(44.dp),
+        shape = RoundedCornerShape(10.dp),
+    )
+}
+
+@Composable
+private fun DeveloperPlaceholder(palette: NavigationPalette) {
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(palette.barBorder.copy(alpha = 0.35f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        AppIcon(
+            kind = AppIconKind.Account,
+            tint = palette.textMuted,
+            modifier = Modifier.size(22.dp),
+        )
+    }
+}
+
+@Composable
+private fun RowScope.SearchRowText(
+    title: String,
+    subtitle: String,
+    palette: NavigationPalette,
+    prefix: String = "",
+) {
+    Spacer(modifier = Modifier.width(10.dp))
+    Column(modifier = Modifier.weight(1f)) {
+        Text(
+            text = if (prefix.isEmpty()) title.uppercase() else "$prefix$title",
+            color = palette.textPrimary,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (subtitle.isNotBlank()) {
+            Text(
+                text = subtitle,
+                color = palette.textMuted,
+                fontSize = 11.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlayBadge(palette: NavigationPalette) {
+    Surface(
+        shape = RoundedCornerShape(9.dp),
+        color = palette.idleContent,
+    ) {
+        Text(
+            text = stringResource(R.string.game_play),
+            color = palette.bar,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+        )
+    }
+}
+
+@Composable
+private fun categoryTitleRes(category: SearchCategory): Int = when (category) {
+    SearchCategory.Games -> R.string.search_categories_games
+    SearchCategory.Developers -> R.string.search_categories_developers
+    SearchCategory.Users -> R.string.search_categories_users
+}
+
+private fun resultKey(result: SearchResult): String = when (result) {
+    is SearchResult.Game -> "game-${result.game.id}"
+    is SearchResult.User -> "user-${result.id}"
+    is SearchResult.Developer -> "developer-${result.id}"
 }
 
 @Composable
@@ -357,7 +634,7 @@ private fun SearchIconButton(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50),
-        color = androidx.compose.ui.graphics.Color.Transparent,
+        color = Color.Transparent,
     ) {
         Box(
             modifier = Modifier.size(40.dp),
@@ -368,81 +645,6 @@ private fun SearchIconButton(
                 tint = palette.textPrimary,
                 modifier = Modifier.size(20.dp),
             )
-        }
-    }
-}
-
-@Composable
-private fun SearchResultRow(
-    game: GameCardUi,
-    palette: NavigationPalette,
-    onClick: () -> Unit,
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = palette.bar,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (game.iconPath.isNotBlank()) {
-                RemoteImage(
-                    url = resolveMediaUrl(game.iconPath),
-                    contentDescription = game.title,
-                    modifier = Modifier.size(44.dp),
-                    shape = RoundedCornerShape(10.dp),
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(palette.barBorder.copy(alpha = 0.35f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AppIcon(
-                        kind = AppIconKind.Games,
-                        tint = palette.textMuted,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(10.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = game.title.uppercase(),
-                    color = palette.textPrimary,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = genreLabelRes(game.genreSlug)?.let { stringResource(it) }?.uppercase().orEmpty(),
-                    color = palette.textMuted,
-                    fontSize = 11.sp,
-                    maxLines = 1,
-                )
-            }
-
-            Surface(
-                onClick = onClick,
-                shape = RoundedCornerShape(9.dp),
-                color = palette.idleContent,
-            ) {
-                Text(
-                    text = stringResource(R.string.game_play),
-                    color = palette.bar,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                )
-            }
         }
     }
 }
@@ -665,12 +867,14 @@ private fun CatalogMessage(
             color = palette.textPrimary,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
         )
         if (hint != null) {
             Text(
                 text = hint,
                 color = palette.textMuted,
                 fontSize = 13.sp,
+                textAlign = TextAlign.Center,
             )
         }
         if (action != null && onAction != null) {
@@ -692,6 +896,7 @@ private fun CatalogMessage(
 }
 
 private const val SkeletonCards = 4
+private const val SkeletonRows = 4
 private const val SearchAnimationMillis = 260
 private const val HeaderKey = "home-header"
 private const val GenresKey = "home-genres"

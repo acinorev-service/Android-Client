@@ -192,7 +192,7 @@
     <string name="emojis_unauthorized_description">Ваши смайлики появятся здесь после входа в аккаунт.</string>
 
     <string name="home_title">Каталог игр</string>
-    <string name="home_search_placeholder">Поиск игр</string>
+    <string name="home_search_placeholder">Поиск игр, людей и студий</string>
     <string name="home_all_genres">Все жанры</string>
     <string name="home_unavailable">Не удалось загрузить каталог</string>
     <string name="home_empty">Игры не найдены</string>
@@ -222,7 +222,14 @@
     <string name="play_developer">Разработчик</string>
     <string name="play_released">Выпущена</string>
     <string name="play_other_games">Другие игры</string>
+    <string name="search_categories_games">Игры</string>
+    <string name="search_categories_developers">Разработчики</string>
+    <string name="search_categories_users">Люди</string>
+    <string name="search_show_more">Показать ещё</string>
+    <string name="search_error">Не удалось выполнить поиск</string>
+    <string name="search_prompt">Введите запрос, чтобы найти игры, людей и студии</string>
 </resources>
+
 
 
 

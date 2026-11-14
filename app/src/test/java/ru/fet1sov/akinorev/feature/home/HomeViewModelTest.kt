@@ -54,30 +54,6 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun query_filtersByTitleAndAuthor() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", authorUsername = "another"),
-                    ),
-                ),
-            )
-        }
-        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
-
-        val viewModel = viewModel()
-        advanceUntilIdle()
-
-        viewModel.onQueryChange("neon")
-        advanceUntilIdle()
-
-        assertEquals(1, viewModel.uiState.value.games.size)
-        assertEquals("Neon Runner", viewModel.uiState.value.games.single().title)
-    }
-
-    @Test
     fun toggleGenre_selectsAndClearsGenre() = runTest(mainDispatcher) {
         api.onGetGames = { _, _, _, _ ->
             ApiFixtures.success(
@@ -148,16 +124,14 @@ class HomeViewModelTest {
         val viewModel = viewModel()
         advanceUntilIdle()
 
-        viewModel.onQueryChange("unknown")
         viewModel.toggleGenre("rpg")
         advanceUntilIdle()
-        assertTrue(viewModel.uiState.value.games.isEmpty())
+        assertEquals(1, viewModel.uiState.value.games.size)
 
         viewModel.clearFilters()
         advanceUntilIdle()
 
         assertEquals(2, viewModel.uiState.value.games.size)
-        assertEquals("", viewModel.uiState.value.query)
         assertEquals("", viewModel.uiState.value.selectedGenre)
     }
 
@@ -192,14 +166,11 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun closeSearch_resetsQueryAndReturnsToCatalog() = runTest(mainDispatcher) {
+    fun closeSearch_returnsToCatalog() = runTest(mainDispatcher) {
         api.onGetGames = { _, _, _, _ ->
             ApiFixtures.success(
                 ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon"),
-                    ),
+                    games = listOf(ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner")),
                 ),
             )
         }
@@ -209,16 +180,14 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         viewModel.openSearch()
-        viewModel.onQueryChange("neon")
         advanceUntilIdle()
-        assertEquals(1, viewModel.uiState.value.games.size)
+        assertTrue(viewModel.uiState.value.isSearchOpen)
 
         viewModel.closeSearch()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertFalse(state.isSearchOpen)
-        assertEquals("", state.query)
-        assertEquals(2, state.games.size)
+        assertEquals(1, state.games.size)
     }
 }

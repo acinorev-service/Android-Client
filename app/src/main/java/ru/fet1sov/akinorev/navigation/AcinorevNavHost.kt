@@ -78,6 +78,9 @@ fun AcinorevNavHost(
                 onPlay = { gameId, title ->
                     navController.navigate(PlayDestination(gameId = gameId, title = title))
                 },
+                onOpenUser = { username ->
+                    navController.navigate(ProfileDestination(username = username))
+                },
             )
         }
         composable<MessagesDestination> {

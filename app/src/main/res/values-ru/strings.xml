@@ -52,4 +52,143 @@
 
     <string name="menu_account_signed_in">Вы вошли в Akinorev</string>
     <string name="menu_logout">Выйти</string>
+
+    <string name="nav_notifications">Уведомления</string>
+    <string name="nav_community">Сообщество</string>
+    <string name="nav_emojis">Смайлики</string>
+    <string name="nav_settings">Настройки</string>
+
+    <string name="section_notifications_description">Новые подписчики, лайки, комментарии и объявления сообщества.</string>
+    <string name="section_community_description">Сообщества, чаты и люди, на которых вы подписаны, в одном месте.</string>
+    <string name="section_emojis_description">Собственная коллекция смайликов для постов и чатов.</string>
+    <string name="section_profile_description">Публичный профиль, значки и оформление имени подписчика.</string>
+    <string name="profile_title">Профиль</string>
+
+    <string name="subscription_title">Acinorev Crystal</string>
+    <string name="subscription_name">Crystal</string>
+    <string name="subscription_active_until">Действует до %1$s</string>
+    <string name="subscription_android_note">Управление подпиской Crystal появится в Android-приложении позже. Пока оформить и продлить её можно в веб-клиенте.</string>
+
+    <string name="settings_tabs_appearance">Оформление</string>
+    <string name="settings_tabs_notifications">Уведомления</string>
+    <string name="settings_tabs_account">Аккаунт</string>
+
+    <string name="settings_themes_title">Темы</string>
+    <string name="settings_themes_description">Выберите цвет оформления, который вам подходит</string>
+    <string name="themes_system">Системная</string>
+    <string name="themes_light">Светлая</string>
+    <string name="themes_dark">Тёмная</string>
+
+    <string name="settings_language_title">Выбор языка</string>
+    <string name="settings_language_description">Выберите язык, который вам подходит</string>
+    <string name="settings_language_system">Системный</string>
+    <string name="locales_en">English</string>
+    <string name="locales_ru">Русский</string>
+
+    <string name="settings_animations_title">Анимации</string>
+    <string name="settings_animations_description">Плавные переходы и эффекты интерфейса</string>
+    <string name="settings_animations_enabled">Анимации интерфейса</string>
+
+    <string name="settings_notifications_types_title">Типы уведомлений</string>
+    <string name="settings_notifications_types_description">Отключённые уведомления не создаются и не приходят как push-сообщения</string>
+    <string name="settings_notifications_type_follow">Новые подписчики</string>
+    <string name="settings_notifications_type_block">Блокировки</string>
+    <string name="settings_notifications_type_post">Новые посты</string>
+    <string name="settings_notifications_type_like">Лайки постов</string>
+    <string name="settings_notifications_type_broadcast">Объявления администрации</string>
+    <string name="settings_notifications_load_failed">Не удалось загрузить настройки уведомлений</string>
+    <string name="settings_notifications_save_failed">Не удалось сохранить настройку. Попробуйте снова.</string>
+    <string name="settings_notifications_retry">Попробовать снова</string>
+
+    <string name="settings_account_title">Аккаунт</string>
+    <string name="settings_account_description">Управление текущей сессией</string>
+    <string name="settings_account_logout">Выйти из аккаунта</string>
+
+    <string name="notifications_mark_all_read">Прочитать все</string>
+    <string name="notifications_empty">Пока нет оповещений</string>
+    <string name="notifications_just_now">только что</string>
+    <string name="notifications_minutes_ago">%1$d мин назад</string>
+    <string name="notifications_hours_ago">%1$d ч назад</string>
+    <string name="notifications_followed_you">подписался на вас</string>
+    <string name="notifications_blocked_you">заблокировал вас</string>
+    <string name="notifications_new_post">опубликовал новый пост</string>
+    <string name="notifications_liked_post">поставил лайк на ваш пост</string>
+    <string name="notifications_channel_name">Уведомления</string>
+    <string name="notifications_channel_description">Новые подписчики, посты, лайки и объявления</string>
+    <string name="library_title">Мои игры</string>
+    <string name="library_subtitle">Игры, в которые вы уже играли</string>
+    <string name="library_games_count">Игр: %1$d</string>
+    <string name="library_total_playtime">Всего наиграно: %1$s</string>
+    <string name="library_last_played">Последний запуск: %1$s</string>
+    <string name="library_empty">Вы ещё не играли ни в одну игру</string>
+    <string name="library_empty_hint">Выберите игру в каталоге и запустите её — она появится здесь</string>
+    <string name="library_to_catalog">Открыть каталог</string>
+    <string name="library_unavailable">Не удалось загрузить ваши игры</string>
+    <string name="library_retry">Повторить</string>
+    <string name="library_time_hours_minutes">%1$d ч %2$d мин</string>
+    <string name="library_time_hours">%1$d ч</string>
+    <string name="library_time_minutes">%1$d мин</string>
+    <string name="library_time_less_minute">меньше минуты</string>
+    <string name="game_play">Играть</string>
+    <string name="game_play_placeholder">Игровой экран появится здесь в следующем обновлении.</string>
+
+    <string name="genres_rpg">РПГ</string>
+    <string name="genres_action">Экшен</string>
+    <string name="genres_puzzle">Головоломки</string>
+    <string name="genres_racing">Гонки</string>
+    <string name="genres_casual">Казуальные</string>
+    <string name="genres_strategy">Стратегии</string>
+    <string name="genres_shooter">Шутеры</string>
+    <string name="genres_sports">Спорт</string>
+    <string name="genres_adventure">Приключения</string>
+    <string name="genres_simulation">Симуляторы</string>
+    <string name="genres_platformer">Платформеры</string>
+    <string name="genres_horror">Хоррор</string>
+    <string name="genres_indie">Инди</string>
+    <string name="genres_openworld">Открытый мир</string>
+    <string name="genres_fighting">Файтинги</string>
+    <string name="genres_sandbox">Песочница</string>
+    <string name="genres_roleplay">Ролевые</string>
+    <string name="genres_arcade">Аркады</string>
+
+    <string name="emojis_title">Смайлики</string>
+    <string name="emojis_description">Загружай свои смайлики в формате GIF или PNG и используй их в сообщениях: напиши :имя: в чате или вставь из панели.</string>
+    <string name="emojis_upload">Загрузить смайлик</string>
+    <string name="emojis_uploading">Загружаем…</string>
+    <string name="emojis_empty">Пока нет смайликов. Загрузи свой первый!</string>
+    <string name="emojis_delete">Удалить</string>
+    <string name="emojis_deleted">Смайлик удалён</string>
+    <string name="emojis_delete_failed">Не удалось удалить смайлик</string>
+    <string name="emojis_delete_confirm_title">Удалить смайлик?</string>
+    <string name="emojis_delete_confirm_message">Смайлик %1$s исчезнет из всех чатов.</string>
+    <string name="emojis_cancel">Отмена</string>
+    <string name="emojis_discard_title">Покинуть страницу?</string>
+    <string name="emojis_discard_message">Изменения не сохранятся. Вы уверены, что хотите уйти?</string>
+    <string name="emojis_discard_confirm">Покинуть</string>
+    <string name="emojis_retry">Повторить</string>
+    <string name="emojis_unavailable">Не удалось загрузить смайлики</string>
+    <string name="emojis_pick_file">Выберите файл</string>
+    <string name="emojis_pick_file_hint">GIF, PNG, WebP или JPEG до 5 МБ</string>
+    <string name="emojis_replace_file">Заменить файл</string>
+    <string name="emojis_name">Уникальное имя</string>
+    <string name="emojis_name_placeholder">например, pepe</string>
+    <string name="emojis_name_hint">Специальное слово: наберите</string>
+    <string name="emojis_title_label">Название</string>
+    <string name="emojis_title_placeholder">Название смайлика</string>
+    <string name="emojis_description_label">Описание</string>
+    <string name="emojis_description_placeholder">Краткое описание смайлика (необязательно)</string>
+    <string name="emojis_locked_title">Загрузка смайликов — для подписчиков</string>
+    <string name="emojis_locked_description">Оформите подписку Crystal, чтобы загружать собственные смайлики и использовать их в чатах.</string>
+    <string name="emojis_create_title">Новый смайлик</string>
+    <string name="emojis_create_subtitle">Выберите картинку и задайте смайлику уникальное имя</string>
+    <string name="emojis_error_format">Можно загружать только GIF, PNG, WebP или JPEG</string>
+    <string name="emojis_error_size">Файл больше 5 МБ</string>
+    <string name="emojis_error_read_file">Не удалось прочитать выбранный файл</string>
+    <string name="emojis_error_name_invalid">От 1 до 32 символов: латинские буквы, цифры и подчёркивание</string>
+    <string name="emojis_error_name_taken">Такое имя уже занято</string>
+    <string name="emojis_error_server">Не удалось загрузить смайлик</string>
+    <string name="emojis_error_unknown">Что-то пошло не так</string>
+    <string name="emojis_unauthorized_title">Войдите, чтобы видеть смайлики</string>
+    <string name="emojis_unauthorized_description">Ваши смайлики появятся здесь после входа в аккаунт.</string>
 </resources>
+

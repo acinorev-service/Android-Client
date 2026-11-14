@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -29,17 +30,30 @@ class HomeViewModelTest {
 
     private fun viewModel() = HomeViewModel(catalogRepository)
 
-    @Test
-    fun load_exposesGamesAndGenres() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner", genreSlug = "arcade"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", genreSlug = "rpg"),
-                    ),
-                ),
+    private fun page(start: Int, count: Int, total: Int) = ApiFixtures.catalogPayload(
+        games = (start until start + count).map { index ->
+            ApiFixtures.catalogGame(
+                id = "game-$index",
+                title = "Game $index",
+                genreSlug = "arcade",
             )
+        },
+        total = total,
+    )
+
+    @Test
+    fun firstPage_requestsSixMobileGames() = runTest(mainDispatcher) {
+        var requestedLimit = 0
+        var requestedOffset = -1
+        var requestedGenre: String? = "unset"
+        var requestedPlatform: String? = null
+
+        api.onGetGames = { limit, offset, _, genre, platform ->
+            requestedLimit = limit
+            requestedOffset = offset
+            requestedGenre = genre
+            requestedPlatform = platform
+            ApiFixtures.success(page(start = 0, count = 6, total = 12))
         }
         api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
 
@@ -47,23 +61,63 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(2, state.games.size)
-        assertEquals(listOf("arcade", "rpg"), state.genres)
+        assertEquals(6, requestedLimit)
+        assertEquals(0, requestedOffset)
+        assertEquals("mobile", requestedPlatform)
+        assertNull(requestedGenre)
+        assertEquals(6, state.games.size)
+        assertTrue(state.hasMore)
         assertFalse(state.isLoading)
-        assertFalse(state.isUnavailable)
     }
 
     @Test
-    fun toggleGenre_selectsAndClearsGenre() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner", genreSlug = "arcade"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", genreSlug = "rpg"),
-                    ),
-                ),
-            )
+    fun loadMore_appendsNextPage() = runTest(mainDispatcher) {
+        val requestedOffsets = mutableListOf<Int>()
+        api.onGetGames = { _, offset, _, _, _ ->
+            requestedOffsets += offset
+            ApiFixtures.success(page(start = offset, count = 6, total = 12))
+        }
+        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
+
+        val viewModel = viewModel()
+        advanceUntilIdle()
+        assertEquals(6, viewModel.uiState.value.games.size)
+
+        viewModel.loadMore()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(listOf(0, 6), requestedOffsets)
+        assertEquals(12, state.games.size)
+        assertFalse(state.hasMore)
+    }
+
+    @Test
+    fun loadMore_ignoredWhenNoMorePages() = runTest(mainDispatcher) {
+        var calls = 0
+        api.onGetGames = { _, _, _, _, _ ->
+            calls += 1
+            ApiFixtures.success(page(start = 0, count = 6, total = 6))
+        }
+        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
+
+        val viewModel = viewModel()
+        advanceUntilIdle()
+        viewModel.loadMore()
+        advanceUntilIdle()
+
+        assertEquals(1, calls)
+    }
+
+    @Test
+    fun toggleGenre_resetsPaginationAndPassesGenre() = runTest(mainDispatcher) {
+        val genres = mutableListOf<String?>()
+        val offsets = mutableListOf<Int>()
+
+        api.onGetGames = { _, offset, _, genre, _ ->
+            genres += genre
+            offsets += offset
+            ApiFixtures.success(page(start = 0, count = 6, total = 6))
         }
         api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
 
@@ -72,16 +126,15 @@ class HomeViewModelTest {
 
         viewModel.toggleGenre("rpg")
         advanceUntilIdle()
-        assertEquals(1, viewModel.uiState.value.games.size)
 
-        viewModel.toggleGenre("rpg")
-        advanceUntilIdle()
-        assertEquals(2, viewModel.uiState.value.games.size)
+        assertEquals(listOf(null, "rpg"), genres)
+        assertEquals(listOf(0, 0), offsets)
+        assertEquals("rpg", viewModel.uiState.value.selectedGenre)
     }
 
     @Test
     fun failure_marksCatalogUnavailable() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ -> ApiFixtures.error(500, "server_error") }
+        api.onGetGames = { _, _, _, _, _ -> ApiFixtures.error(500, "server_error") }
         api.onGetGenres = { ApiFixtures.error(500, "server_error") }
 
         val viewModel = viewModel()
@@ -95,7 +148,9 @@ class HomeViewModelTest {
 
     @Test
     fun emptyResult_isReportedAsFilteredEmpty() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ -> ApiFixtures.success(ApiFixtures.catalogPayload(games = emptyList())) }
+        api.onGetGames = { _, _, _, _, _ ->
+            ApiFixtures.success(ApiFixtures.catalogPayload(games = emptyList(), total = 0))
+        }
         api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
 
         val viewModel = viewModel()
@@ -105,19 +160,15 @@ class HomeViewModelTest {
         assertTrue(state.games.isEmpty())
         assertTrue(state.isFilteredEmpty)
         assertFalse(state.isUnavailable)
+        assertFalse(state.hasMore)
     }
 
     @Test
-    fun clearFilters_restoresFullList() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner", genreSlug = "arcade"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", genreSlug = "rpg"),
-                    ),
-                ),
-            )
+    fun clearFilters_restoresAllGames() = runTest(mainDispatcher) {
+        var lastGenre: String? = "unset"
+        api.onGetGames = { _, _, _, genre, _ ->
+            lastGenre = genre
+            ApiFixtures.success(page(start = 0, count = 6, total = 6))
         }
         api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
 
@@ -126,68 +177,32 @@ class HomeViewModelTest {
 
         viewModel.toggleGenre("rpg")
         advanceUntilIdle()
-        assertEquals(1, viewModel.uiState.value.games.size)
+        assertEquals("rpg", lastGenre)
 
         viewModel.clearFilters()
         advanceUntilIdle()
 
-        assertEquals(2, viewModel.uiState.value.games.size)
+        assertNull(lastGenre)
         assertEquals("", viewModel.uiState.value.selectedGenre)
     }
 
     @Test
-    fun openSearch_clearsGenreAndShowsAllGames() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(
-                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner", genreSlug = "arcade"),
-                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", genreSlug = "rpg"),
-                    ),
-                ),
-            )
+    fun openSearch_keepsCatalogWithoutReloadWhenNoGenreSelected() = runTest(mainDispatcher) {
+        var calls = 0
+        api.onGetGames = { _, _, _, _, _ ->
+            calls += 1
+            ApiFixtures.success(page(start = 0, count = 6, total = 6))
         }
         api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
 
         val viewModel = viewModel()
         advanceUntilIdle()
-
-        viewModel.toggleGenre("rpg")
-        advanceUntilIdle()
-        assertEquals(1, viewModel.uiState.value.games.size)
+        assertEquals(1, calls)
 
         viewModel.openSearch()
         advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state.isSearchOpen)
-        assertEquals("", state.selectedGenre)
-        assertEquals(2, state.games.size)
-    }
-
-    @Test
-    fun closeSearch_returnsToCatalog() = runTest(mainDispatcher) {
-        api.onGetGames = { _, _, _, _ ->
-            ApiFixtures.success(
-                ApiFixtures.catalogPayload(
-                    games = listOf(ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner")),
-                ),
-            )
-        }
-        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
-
-        val viewModel = viewModel()
-        advanceUntilIdle()
-
-        viewModel.openSearch()
-        advanceUntilIdle()
         assertTrue(viewModel.uiState.value.isSearchOpen)
-
-        viewModel.closeSearch()
-        advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertFalse(state.isSearchOpen)
-        assertEquals(1, state.games.size)
+        assertEquals(1, calls)
     }
 }

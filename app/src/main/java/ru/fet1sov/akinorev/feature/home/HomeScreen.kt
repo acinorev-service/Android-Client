@@ -1,4 +1,4 @@
-package ru.fet1sov.akinorev.feature.home
+﻿package ru.fet1sov.akinorev.feature.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
@@ -134,6 +134,7 @@ fun HomeScreen(
                 onGenreClick = viewModel::toggleGenre,
                 onRetry = viewModel::retry,
                 onClearFilters = viewModel::clearFilters,
+                onLoadMore = viewModel::loadMore,
                 onPlay = onPlay,
             )
         }
@@ -148,6 +149,7 @@ private fun CatalogPane(
     onGenreClick: (String) -> Unit,
     onRetry: () -> Unit,
     onClearFilters: () -> Unit,
+    onLoadMore: () -> Unit,
     onPlay: (String, String) -> Unit,
 ) {
     LazyVerticalGrid(
@@ -206,12 +208,27 @@ private fun CatalogPane(
                 )
             }
 
-            else -> items(uiState.games, key = { it.id }) { game ->
-                GameCard(
-                    game = game,
-                    palette = palette,
-                    onPlay = { onPlay(game.id, game.title) },
-                )
+            else -> {
+                items(uiState.games, key = { it.id }) { game ->
+                    GameCard(
+                        game = game,
+                        palette = palette,
+                        onPlay = { onPlay(game.id, game.title) },
+                    )
+                }
+
+                if (uiState.hasMore || uiState.isLoadingMore) {
+                    item(
+                        key = "load-more-${uiState.games.size}",
+                        span = { GridItemSpan(maxLineSpan) },
+                    ) {
+                        LoadMoreTrigger(
+                            isLoading = uiState.isLoadingMore,
+                            palette = palette,
+                            onLoadMore = onLoadMore,
+                        )
+                    }
+                }
             }
         }
     }
@@ -377,6 +394,30 @@ private fun SearchPane(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun LoadMoreTrigger(
+    isLoading: Boolean,
+    palette: NavigationPalette,
+    onLoadMore: () -> Unit,
+) {
+    LaunchedEffect(Unit) { onLoadMore() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 18.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(22.dp),
+                color = palette.textPrimary,
+                strokeWidth = 2.dp,
+            )
         }
     }
 }
@@ -899,10 +940,11 @@ private fun CatalogMessage(
     }
 }
 
-private const val SkeletonCards = 4
+private const val SkeletonCards = 6
 private const val SkeletonRows = 4
 private const val SearchAnimationMillis = 260
 private const val HeaderKey = "home-header"
 private const val GenresKey = "home-genres"
 private const val ErrorKey = "home-error"
 private const val EmptyKey = "home-empty"
+

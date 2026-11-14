@@ -86,8 +86,8 @@ class FakeAcinorevApi : AcinorevApi {
         { _, _ -> error(404) }
     var onDeleteEmoji: suspend (String) -> Response<ApiEnvelope<EmojiDeletedDto>> = { error(404) }
 
-    var onGetGames: suspend (Int, Int, String?, String?) -> Response<ApiEnvelope<CatalogGamesPayloadDto>> =
-        { _, _, _, _ -> error(404) }
+    var onGetGames: suspend (Int, Int, String?, String?, String?) -> Response<ApiEnvelope<CatalogGamesPayloadDto>> =
+        { _, _, _, _, _ -> error(404) }
     var onGetGame: suspend (String) -> Response<ApiEnvelope<CatalogGamePayloadDto>> = { error(404) }
     var onGetGenres: suspend () -> Response<ApiEnvelope<CatalogGenresPayloadDto>> = { error(404) }
     var onSearch: suspend (String, Int) -> Response<ApiEnvelope<SearchPayloadDto>> = { _, _ -> error(404) }
@@ -170,7 +170,8 @@ class FakeAcinorevApi : AcinorevApi {
         offset: Int,
         query: String?,
         genre: String?,
-    ): Response<ApiEnvelope<CatalogGamesPayloadDto>> = onGetGames(limit, offset, query, genre)
+        platform: String?,
+    ): Response<ApiEnvelope<CatalogGamesPayloadDto>> = onGetGames(limit, offset, query, genre, platform)
 
     override suspend fun getGame(id: String): Response<ApiEnvelope<CatalogGamePayloadDto>> = onGetGame(id)
 

@@ -13,9 +13,27 @@ class DefaultCatalogRepository(
     private val api: AcinorevApi,
     private val client: ApiClient,
 ) : CatalogRepository {
-    override suspend fun fetchGames(limit: Int): AuthResult<List<CatalogGame>> =
-        when (val result = client.execute { api.getGames(limit = limit, offset = 0) }) {
-            is AuthResult.Success -> AuthResult.Success(result.value.games.mapNotNull(CatalogGameDto::toDomain))
+    override suspend fun fetchGames(
+        limit: Int,
+        offset: Int,
+        genre: String?,
+        platform: String?,
+    ): AuthResult<CatalogPage> =
+        when (val result = client.execute {
+            api.getGames(
+                limit = limit,
+                offset = offset,
+                genre = genre?.takeIf { it.isNotBlank() },
+                platform = platform?.takeIf { it.isNotBlank() },
+            )
+        }) {
+            is AuthResult.Success -> AuthResult.Success(
+                CatalogPage(
+                    games = result.value.games.mapNotNull(CatalogGameDto::toDomain),
+                    total = result.value.total.takeIf { it > 0 } ?: result.value.games.size,
+                ),
+            )
+
             is AuthResult.Failure -> result
         }
 

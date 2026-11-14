@@ -97,6 +97,7 @@ interface AcinorevApi {
         @Query("offset") offset: Int,
         @Query("q") query: String? = null,
         @Query("genre") genre: String? = null,
+        @Query("platform") platform: String? = null,
     ): Response<ApiEnvelope<CatalogGamesPayloadDto>>
 
     @GET("games/{id}")

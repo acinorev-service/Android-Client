@@ -5,11 +5,19 @@ import ru.fet1sov.akinorev.model.CatalogGame
 import ru.fet1sov.akinorev.model.CatalogGenre
 
 interface CatalogRepository {
-    suspend fun fetchGames(limit: Int = CatalogPageSize): AuthResult<List<CatalogGame>>
+    suspend fun fetchGames(
+        limit: Int,
+        offset: Int,
+        genre: String? = null,
+        platform: String? = null,
+    ): AuthResult<CatalogPage>
 
     suspend fun fetchGame(id: String): AuthResult<CatalogGame>
 
     suspend fun fetchGenres(): AuthResult<List<CatalogGenre>>
 }
 
-const val CatalogPageSize = 100
+data class CatalogPage(
+    val games: List<CatalogGame>,
+    val total: Int,
+)

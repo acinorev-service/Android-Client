@@ -1,4 +1,4 @@
-package ru.fet1sov.akinorev.data.catalog
+﻿package ru.fet1sov.akinorev.data.catalog
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -25,14 +25,14 @@ class DefaultCatalogRepositoryTest {
 
     @Test
     fun fetchGames_mapsCatalogFields() = runTest {
-        api.onGetGames = { _, _, _, _ ->
+        api.onGetGames = { _, _, _, _, _ ->
             ApiFixtures.success(ApiFixtures.catalogPayload(games = listOf(ApiFixtures.catalogGame())))
         }
 
-        val result = repository.fetchGames()
+        val result = repository.fetchGames(limit = 6, offset = 0)
 
         assertTrue(result is AuthResult.Success)
-        val game = (result as AuthResult.Success).value.single()
+        val game = (result as AuthResult.Success).value.games.single()
         assertEquals("game-1", game.id)
         assertEquals("Neon Runner", game.title)
         assertEquals("arcade", game.genreSlug)
@@ -46,7 +46,7 @@ class DefaultCatalogRepositoryTest {
 
     @Test
     fun fetchGames_withoutPlatforms_isAvailableEverywhere() = runTest {
-        api.onGetGames = { _, _, _, _ ->
+        api.onGetGames = { _, _, _, _, _ ->
             ApiFixtures.success(
                 ApiFixtures.catalogPayload(
                     games = listOf(ApiFixtures.catalogGame(platforms = emptyList())),
@@ -54,7 +54,7 @@ class DefaultCatalogRepositoryTest {
             )
         }
 
-        val game = (repository.fetchGames() as AuthResult.Success).value.single()
+        val game = (repository.fetchGames(limit = 6, offset = 0) as AuthResult.Success).value.games.single()
 
         assertTrue(game.supportsMobile)
         assertTrue(game.supportsPc)
@@ -62,9 +62,9 @@ class DefaultCatalogRepositoryTest {
 
     @Test
     fun fetchGames_failureIsPropagated() = runTest {
-        api.onGetGames = { _, _, _, _ -> ApiFixtures.error(500, "server_error") }
+        api.onGetGames = { _, _, _, _, _ -> ApiFixtures.error(500, "server_error") }
 
-        val result = repository.fetchGames()
+        val result = repository.fetchGames(limit = 6, offset = 0)
 
         assertTrue(result is AuthResult.Failure)
     }
@@ -107,3 +107,4 @@ class DefaultCatalogRepositoryTest {
         assertEquals("genres.arcade", genres.single().titleKey)
     }
 }
+

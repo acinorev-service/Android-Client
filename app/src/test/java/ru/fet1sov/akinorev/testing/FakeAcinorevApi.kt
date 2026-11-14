@@ -6,6 +6,14 @@ import retrofit2.Response
 import ru.fet1sov.akinorev.data.remote.AcinorevApi
 import ru.fet1sov.akinorev.data.remote.dto.ApiEnvelope
 import ru.fet1sov.akinorev.data.remote.dto.AuthPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogAuthorDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogDeveloperDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGameDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGamePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGamesPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGenreDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGenresPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogPlatformDto
 import ru.fet1sov.akinorev.data.remote.dto.DepositKeyRequest
 import ru.fet1sov.akinorev.data.remote.dto.EmojiDeletedDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiDto
@@ -13,6 +21,7 @@ import ru.fet1sov.akinorev.data.remote.dto.EmojiListDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiRegisterRequest
 import ru.fet1sov.akinorev.data.remote.dto.EmojiUpdateRequest
+import ru.fet1sov.akinorev.data.remote.dto.GamePlayersPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.KeyCustodyDto
 
 import ru.fet1sov.akinorev.data.remote.dto.LibraryGameDto
@@ -28,6 +37,7 @@ import ru.fet1sov.akinorev.data.remote.dto.NotificationDto
 import ru.fet1sov.akinorev.data.remote.dto.NotificationListDto
 import ru.fet1sov.akinorev.data.remote.dto.NotificationPreferencesDto
 import ru.fet1sov.akinorev.data.remote.dto.NotificationPreferencesPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PlayStatePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ProfilePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PushDeviceResponse
 import ru.fet1sov.akinorev.data.remote.dto.RefreshRequest
@@ -72,6 +82,15 @@ class FakeAcinorevApi : AcinorevApi {
     var onUpdateEmoji: suspend (String, EmojiUpdateRequest) -> Response<ApiEnvelope<EmojiPayloadDto>> =
         { _, _ -> error(404) }
     var onDeleteEmoji: suspend (String) -> Response<ApiEnvelope<EmojiDeletedDto>> = { error(404) }
+
+    var onGetGames: suspend (Int, Int, String?, String?) -> Response<ApiEnvelope<CatalogGamesPayloadDto>> =
+        { _, _, _, _ -> error(404) }
+    var onGetGame: suspend (String) -> Response<ApiEnvelope<CatalogGamePayloadDto>> = { error(404) }
+    var onGetGenres: suspend () -> Response<ApiEnvelope<CatalogGenresPayloadDto>> = { error(404) }
+    var onGetGamePlayers: suspend (String) -> Response<ApiEnvelope<GamePlayersPayloadDto>> = { error(404) }
+    var onStartPlay: suspend (String) -> Response<ApiEnvelope<PlayStatePayloadDto>> = { error(404) }
+    var onEndPlay: suspend (String) -> Response<ApiEnvelope<PlayStatePayloadDto>> = { error(404) }
+    var onHeartbeatPlay: suspend (String) -> Response<ApiEnvelope<PlayStatePayloadDto>> = { error(404) }
 
     var refreshCalls: Int = 0
         private set
@@ -141,6 +160,26 @@ class FakeAcinorevApi : AcinorevApi {
     ): Response<ApiEnvelope<EmojiPayloadDto>> = onUpdateEmoji(id, body)
 
     override suspend fun deleteEmoji(id: String): Response<ApiEnvelope<EmojiDeletedDto>> = onDeleteEmoji(id)
+
+    override suspend fun getGames(
+        limit: Int,
+        offset: Int,
+        query: String?,
+        genre: String?,
+    ): Response<ApiEnvelope<CatalogGamesPayloadDto>> = onGetGames(limit, offset, query, genre)
+
+    override suspend fun getGame(id: String): Response<ApiEnvelope<CatalogGamePayloadDto>> = onGetGame(id)
+
+    override suspend fun getGenres(): Response<ApiEnvelope<CatalogGenresPayloadDto>> = onGetGenres()
+
+    override suspend fun getGamePlayers(id: String): Response<ApiEnvelope<GamePlayersPayloadDto>> =
+        onGetGamePlayers(id)
+
+    override suspend fun startPlay(id: String): Response<ApiEnvelope<PlayStatePayloadDto>> = onStartPlay(id)
+
+    override suspend fun endPlay(id: String): Response<ApiEnvelope<PlayStatePayloadDto>> = onEndPlay(id)
+
+    override suspend fun heartbeatPlay(id: String): Response<ApiEnvelope<PlayStatePayloadDto>> = onHeartbeatPlay(id)
 }
 
 object ApiFixtures {
@@ -272,4 +311,64 @@ object ApiFixtures {
         limit = limit,
         totalPages = totalPages,
     )
+
+    fun catalogGame(
+        id: String = "game-1",
+        title: String = "Neon Runner",
+        description: String = "A neon runner through the city",
+        banner: String? = "http://localhost:8090/f/banner.png",
+        icon: String? = "http://localhost:8090/f/icon.png",
+        genreSlug: String = "arcade",
+        developerName: String = "Acinorev Studio",
+        authorUsername: String = user.username,
+        platforms: List<String> = listOf("mobile", "pc"),
+        publishedAt: String? = "2026-11-10T12:00:00Z",
+    ): CatalogGameDto = CatalogGameDto(
+        id = id,
+        title = title,
+        description = description,
+        banner = banner,
+        icon = icon,
+        status = "published",
+        publishedAt = publishedAt,
+        createdAt = publishedAt,
+        genre = CatalogGenreDto(
+            id = "genre-$genreSlug",
+            slug = genreSlug,
+            name = genreSlug,
+            title = "genres.$genreSlug",
+        ),
+        developer = CatalogDeveloperDto(id = "developer-1", name = developerName),
+        author = CatalogAuthorDto(id = user.id, username = authorUsername),
+        platforms = platforms.map { slug ->
+            CatalogPlatformDto(id = "platform-$slug", slug = slug, name = slug, title = "platforms.$slug")
+        },
+    )
+
+    fun catalogPayload(
+        games: List<CatalogGameDto> = listOf(catalogGame()),
+        total: Int = games.size,
+    ): CatalogGamesPayloadDto = CatalogGamesPayloadDto(
+        games = games,
+        total = total,
+        limit = games.size,
+        offset = 0,
+    )
+
+    fun catalogGenres(
+        genres: List<CatalogGenreDto> = listOf(
+            CatalogGenreDto(id = "genre-arcade", slug = "arcade", name = "arcade", title = "genres.arcade"),
+            CatalogGenreDto(id = "genre-rpg", slug = "rpg", name = "rpg", title = "genres.rpg"),
+        ),
+    ): CatalogGenresPayloadDto = CatalogGenresPayloadDto(genres = genres)
+
+    fun gamePlayers(
+        gameId: String = "game-1",
+        count: Int = 3,
+    ): GamePlayersPayloadDto = GamePlayersPayloadDto(gameId = gameId, count = count)
+
+    fun playState(
+        gameId: String = "game-1",
+        playing: Boolean = true,
+    ): PlayStatePayloadDto = PlayStatePayloadDto(gameId = gameId, playing = playing, ok = true)
 }

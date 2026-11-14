@@ -11,6 +11,10 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.fet1sov.akinorev.data.remote.dto.ApiEnvelope
 import ru.fet1sov.akinorev.data.remote.dto.AuthPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGamePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGamesPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CatalogGenresPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.GamePlayersPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.DepositKeyRequest
 import ru.fet1sov.akinorev.data.remote.dto.EmojiDeletedDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiListDto
@@ -25,6 +29,7 @@ import ru.fet1sov.akinorev.data.remote.dto.MarkNotificationsReadDto
 import ru.fet1sov.akinorev.data.remote.dto.MarkNotificationsReadRequest
 import ru.fet1sov.akinorev.data.remote.dto.NotificationListDto
 import ru.fet1sov.akinorev.data.remote.dto.NotificationPreferencesPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PlayStatePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ProfilePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PushDeviceResponse
 import ru.fet1sov.akinorev.data.remote.dto.RefreshRequest
@@ -84,6 +89,42 @@ interface AcinorevApi {
 
     @GET("library/games")
     suspend fun getLibraryGames(): Response<ApiEnvelope<LibraryGamesPayloadDto>>
+
+    @GET("games")
+    suspend fun getGames(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("q") query: String? = null,
+        @Query("genre") genre: String? = null,
+    ): Response<ApiEnvelope<CatalogGamesPayloadDto>>
+
+    @GET("games/{id}")
+    suspend fun getGame(
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<CatalogGamePayloadDto>>
+
+    @GET("genres")
+    suspend fun getGenres(): Response<ApiEnvelope<CatalogGenresPayloadDto>>
+
+    @GET("play/{id}/players")
+    suspend fun getGamePlayers(
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<GamePlayersPayloadDto>>
+
+    @POST("play/{id}/start")
+    suspend fun startPlay(
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PlayStatePayloadDto>>
+
+    @POST("play/{id}/end")
+    suspend fun endPlay(
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PlayStatePayloadDto>>
+
+    @POST("play/{id}/heartbeat")
+    suspend fun heartbeatPlay(
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PlayStatePayloadDto>>
 
     @GET("notifications/preferences")
     suspend fun getNotificationPreferences(): Response<ApiEnvelope<NotificationPreferencesPayloadDto>>

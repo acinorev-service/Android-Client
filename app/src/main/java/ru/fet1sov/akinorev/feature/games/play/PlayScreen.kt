@@ -92,7 +92,7 @@ fun PlayScreen(
     PlayerSystemBarsEffect(
         isFullscreen = uiState.isFullscreen,
         appDarkTheme = appDarkTheme,
-        statusBarColor = palette.bar,
+        statusBarColor = headerTopColor(palette),
         navigationBarColor = palette.screen,
     )
 
@@ -227,7 +227,7 @@ private fun PlayHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(fadeBrush(palette.bar, palette.screen))
+            .background(fadeBrush(headerTopColor(palette), palette.screen))
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -584,6 +584,8 @@ private fun shareInvite(context: Context, title: String, link: String) {
         context.startActivity(Intent.createChooser(intent, title))
     }
 }
+
+private fun headerTopColor(palette: NavigationPalette): Color = lerp(palette.bar, palette.screen, 0.5f)
 
 private fun fadeBrush(top: Color, bottom: Color): Brush {
     val steps = List(GradientSteps) { index ->

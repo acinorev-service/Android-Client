@@ -1,10 +1,20 @@
 package ru.fet1sov.akinorev.ui.navigation
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import ru.fet1sov.akinorev.ui.theme.DarkPrimaryDark
+import ru.fet1sov.akinorev.ui.theme.DarkPrimaryPrimary
+import ru.fet1sov.akinorev.ui.theme.DarkSecondaryDark
+import ru.fet1sov.akinorev.ui.theme.DarkSecondaryLight
+import ru.fet1sov.akinorev.ui.theme.DarkSecondaryPrimary
+import ru.fet1sov.akinorev.ui.theme.LightPrimaryDark
+import ru.fet1sov.akinorev.ui.theme.LightPrimaryPrimary
+import ru.fet1sov.akinorev.ui.theme.LightSecondaryDark
+import ru.fet1sov.akinorev.ui.theme.LightSecondaryLight
+import ru.fet1sov.akinorev.ui.theme.LightSecondaryPrimary
 
 @Immutable
 data class NavigationPalette(
@@ -21,35 +31,36 @@ data class NavigationPalette(
     val badgeText: Color,
 )
 
-private val DarkNavigationPalette = NavigationPalette(
-    screen = Color(0xFF0E0E10),
-    bar = Color(0xFF1B1B1F),
-    barBorder = Color(0xFF2C2C32),
-    activePill = Color(0xFF2C2139),
-    activePillBorder = Color(0xFF48345F),
-    accent = Color(0xFFC08BFF),
-    idleContent = Color(0xFFF1F1F4),
-    textPrimary = Color(0xFFF5F5F7),
-    textMuted = Color(0xFF8D8D96),
-    badge = Color(0xFFEF4444),
-    badgeText = Color(0xFFFFFFFF),
+val DarkNavigationPalette = NavigationPalette(
+    screen = DarkSecondaryPrimary,
+    bar = DarkSecondaryDark,
+    barBorder = DarkSecondaryLight,
+    activePill = DarkSecondaryLight,
+    activePillBorder = DarkSecondaryLight,
+    accent = DarkPrimaryPrimary,
+    idleContent = DarkPrimaryDark,
+    textPrimary = DarkPrimaryPrimary,
+    textMuted = DarkPrimaryDark,
+    badge = DarkPrimaryPrimary,
+    badgeText = DarkSecondaryPrimary,
 )
 
-private val LightNavigationPalette = NavigationPalette(
-    screen = Color(0xFFF6F6F9),
-    bar = Color(0xFFFFFFFF),
-    barBorder = Color(0xFFE4E4EA),
-    activePill = Color(0xFFF1E9FE),
-    activePillBorder = Color(0xFFDFCCFB),
-    accent = Color(0xFF7A3BE0),
-    idleContent = Color(0xFF161619),
-    textPrimary = Color(0xFF141417),
-    textMuted = Color(0xFF6B6B75),
-    badge = Color(0xFFEF4444),
-    badgeText = Color(0xFFFFFFFF),
+val LightNavigationPalette = NavigationPalette(
+    screen = LightSecondaryDark,
+    bar = LightSecondaryPrimary,
+    barBorder = LightSecondaryLight,
+    activePill = LightSecondaryDark,
+    activePillBorder = LightSecondaryLight,
+    accent = LightPrimaryPrimary,
+    idleContent = LightPrimaryDark,
+    textPrimary = LightPrimaryPrimary,
+    textMuted = LightPrimaryDark,
+    badge = LightPrimaryPrimary,
+    badgeText = LightSecondaryPrimary,
 )
+
+val LocalNavigationPalette = staticCompositionLocalOf { LightNavigationPalette }
 
 @Composable
 @ReadOnlyComposable
-fun navigationPalette(): NavigationPalette =
-    if (isSystemInDarkTheme()) DarkNavigationPalette else LightNavigationPalette
+fun navigationPalette(): NavigationPalette = LocalNavigationPalette.current

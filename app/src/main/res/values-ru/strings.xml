@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Akinorev</string>
     <string name="nav_caption">Android-клиент</string>
@@ -11,4 +12,44 @@
     <string name="nav_create_description">Публикация новой записи, смайликов или страницы игры в сообществе.</string>
     <string name="nav_menu_description">Сообщества, инвентарь, награды и всё остальное в одном месте.</string>
     <string name="nav_games_description">Игры студий, в которые можно играть прямо в приложении.</string>
+
+    <string name="auth_login_title">Добро пожаловать</string>
+    <string name="auth_login_subtitle">Введите свои данные для входа в систему</string>
+    <string name="auth_login_action">Войти</string>
+    <string name="auth_login_switch">Впервые здесь? Создать аккаунт</string>
+
+    <string name="auth_register_title">Создать аккаунт</string>
+    <string name="auth_register_subtitle">Начни свой путь</string>
+    <string name="auth_register_action">Зарегистрироваться</string>
+    <string name="auth_register_switch">Уже есть аккаунт? Войти</string>
+
+    <string name="auth_field_username">Имя пользователя</string>
+    <string name="auth_field_email">Электронная почта</string>
+    <string name="auth_field_password">Пароль</string>
+    <string name="auth_field_repeat_password">Повторите пароль</string>
+
+    <string name="auth_placeholder_username">Введите имя пользователя</string>
+    <string name="auth_placeholder_email">Введите электронную почту</string>
+    <string name="auth_placeholder_password">Введите пароль</string>
+    <string name="auth_placeholder_repeat_password">Повторите пароль</string>
+
+    <string name="auth_show_password">Показать пароль</string>
+    <string name="auth_hide_password">Скрыть пароль</string>
+
+    <string name="auth_error_empty_fields">Введите имя пользователя и пароль</string>
+    <string name="auth_error_invalid_username">От 3 до 24 символов, только латинские буквы и цифры</string>
+    <string name="auth_error_short_password">Пароль должен быть не короче 6 символов</string>
+    <string name="auth_error_password_mismatch">Пароли не совпадают</string>
+    <string name="auth_error_invalid_email">Введите корректный адрес почты</string>
+    <string name="auth_error_invalid_credentials">Неверное имя пользователя или пароль</string>
+    <string name="auth_error_user_exists">Пользователь с таким именем или почтой уже существует</string>
+    <string name="auth_error_banned">Учётная запись заблокирована сообществом Akinorev</string>
+    <string name="auth_error_rate_limited">Слишком много попыток. Подождите немного</string>
+    <string name="auth_error_bad_request">Проверьте правильность заполнения полей</string>
+    <string name="auth_error_server">Сервер не отвечает. Попробуйте позже</string>
+    <string name="auth_error_network">Не удалось подключиться к серверу. Проверьте соединение</string>
+    <string name="auth_error_unknown">Произошла неизвестная ошибка</string>
+
+    <string name="menu_account_signed_in">Вы вошли в Akinorev</string>
+    <string name="menu_logout">Выйти</string>
 </resources>

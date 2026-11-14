@@ -30,6 +30,7 @@ data class GameCardUi(
 
 data class HomeUiState(
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val isLoadingMore: Boolean = false,
     val isUnavailable: Boolean = false,
     val games: List<GameCardUi> = emptyList(),
@@ -60,8 +61,9 @@ class HomeViewModel(
     }
 
     fun refresh() {
-        if (mutableUiState.value.isLoading) return
-        loadPage(reset = true, force = true)
+        val state = mutableUiState.value
+        if (state.isLoading || state.isRefreshing) return
+        loadPage(reset = true, force = true, keepContent = true)
     }
 
     fun retry() = refresh()
@@ -116,22 +118,37 @@ class HomeViewModel(
         }
     }
 
-    private fun loadPage(reset: Boolean, force: Boolean = false) {
+    private fun loadPage(
+        reset: Boolean,
+        force: Boolean = false,
+        keepContent: Boolean = false,
+    ) {
         if (loadJob?.isActive == true && !force) return
         loadJob?.cancel()
 
         if (reset) {
             offset = 0
             total = 0
-            loadedGames.clear()
-            mutableUiState.update {
-                it.copy(
-                    isLoading = true,
-                    isLoadingMore = false,
-                    isUnavailable = false,
-                    games = emptyList(),
-                    hasMore = false,
-                )
+            if (keepContent && loadedGames.isNotEmpty()) {
+                mutableUiState.update {
+                    it.copy(
+                        isRefreshing = true,
+                        isLoadingMore = false,
+                        isUnavailable = false,
+                    )
+                }
+            } else {
+                loadedGames.clear()
+                mutableUiState.update {
+                    it.copy(
+                        isLoading = true,
+                        isRefreshing = false,
+                        isLoadingMore = false,
+                        isUnavailable = false,
+                        games = emptyList(),
+                        hasMore = false,
+                    )
+                }
             }
         } else {
             mutableUiState.update { it.copy(isLoadingMore = true) }
@@ -147,9 +164,15 @@ class HomeViewModel(
             )) {
                 is AuthResult.Success -> {
                     val page = result.value
-                    val fresh = page.games.filter { game -> loadedGames.none { it.id == game.id } }
-                    loadedGames += fresh
-                    offset += page.games.size
+                    if (reset) {
+                        loadedGames.clear()
+                        loadedGames += page.games
+                        offset = page.games.size
+                    } else {
+                        val fresh = page.games.filter { game -> loadedGames.none { it.id == game.id } }
+                        loadedGames += fresh
+                        offset += page.games.size
+                    }
                     total = maxOf(page.total, loadedGames.size)
                     val hasMore = page.games.isNotEmpty() && loadedGames.size < total
 
@@ -157,6 +180,7 @@ class HomeViewModel(
                         it.copy(
                             games = loadedGames.map(CatalogGame::toCardUi),
                             isLoading = false,
+                            isRefreshing = false,
                             isLoadingMore = false,
                             isUnavailable = false,
                             hasMore = hasMore,
@@ -167,6 +191,7 @@ class HomeViewModel(
                 is AuthResult.Failure -> mutableUiState.update {
                     it.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         isLoadingMore = false,
                         isUnavailable = loadedGames.isEmpty(),
                     )

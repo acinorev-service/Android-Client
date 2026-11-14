@@ -1,0 +1,54 @@
+stages:
+  - test
+  - build
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+
+default:
+  image: ghcr.io/cirruslabs/android-sdk:36
+  interruptible: true
+
+variables:
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+cache:
+  key:
+    files:
+      - gradle/wrapper/gradle-wrapper.properties
+      - gradle/libs.versions.toml
+  paths:
+    - .gradle/caches
+    - .gradle/wrapper
+
+before_script:
+  - chmod +x ./gradlew
+  - yes | sdkmanager --licenses > /dev/null || true
+  - sdkmanager --install "platforms;android-37.0" "build-tools;36.0.0" > /dev/null
+
+unit_tests:
+  stage: test
+  script:
+    - ./gradlew :app:testDebugUnitTest --stacktrace --console=plain
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - app/build/reports/tests/testDebugUnitTest/
+      - app/build/test-results/testDebugUnitTest/
+    reports:
+      junit: app/build/test-results/testDebugUnitTest/*.xml
+
+assemble_debug:
+  stage: build
+  script:
+    - ./gradlew :app:assembleDebug --stacktrace --console=plain
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - app/build/outputs/apk/debug/*.apk

@@ -22,12 +22,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.fet1sov.akinorev.model.TopLevelDestination
+import ru.fet1sov.akinorev.ui.icons.AppIcon
+import ru.fet1sov.akinorev.ui.icons.AppIconKind
+import ru.fet1sov.akinorev.ui.icons.NavIconKind
 import ru.fet1sov.akinorev.ui.icons.NavIconImage
 import ru.fet1sov.akinorev.ui.navigation.navigationPalette
 
 @Composable
-fun DestinationPlaceholder(
-    destination: TopLevelDestination,
+fun SectionPlaceholder(
+    title: String,
+    path: String,
+    description: String,
+    icon: AppIconKind,
     modifier: Modifier = Modifier,
 ) {
     val palette = navigationPalette()
@@ -46,8 +52,8 @@ fun DestinationPlaceholder(
                 .background(palette.accent.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
-            NavIconImage(
-                kind = destination.icon,
+            AppIcon(
+                kind = icon,
                 tint = palette.accent,
                 modifier = Modifier.size(44.dp),
             )
@@ -56,16 +62,17 @@ fun DestinationPlaceholder(
         Spacer(modifier = Modifier.height(22.dp))
 
         Text(
-            text = stringResource(destination.labelRes),
+            text = title,
             color = palette.textPrimary,
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = destination.path,
+            text = path,
             color = palette.accent,
             fontSize = 12.sp,
             fontFamily = FontFamily.Monospace,
@@ -75,11 +82,33 @@ fun DestinationPlaceholder(
         Spacer(modifier = Modifier.height(14.dp))
 
         Text(
-            text = stringResource(destination.descriptionRes),
+            text = description,
             color = palette.textMuted,
             fontSize = 14.sp,
             lineHeight = 21.sp,
             textAlign = TextAlign.Center,
         )
     }
+}
+
+@Composable
+fun DestinationPlaceholder(
+    destination: TopLevelDestination,
+    modifier: Modifier = Modifier,
+) {
+    SectionPlaceholder(
+        title = stringResource(destination.labelRes),
+        path = destination.path,
+        description = stringResource(destination.descriptionRes),
+        icon = destination.icon.toAppIconKind(),
+        modifier = modifier,
+    )
+}
+
+fun NavIconKind.toAppIconKind(): AppIconKind = when (this) {
+    NavIconKind.Home -> AppIconKind.Home
+    NavIconKind.Chat -> AppIconKind.Messages
+    NavIconKind.Logotype -> AppIconKind.Logotype
+    NavIconKind.Community -> AppIconKind.Community
+    NavIconKind.Gamepad -> AppIconKind.Games
 }

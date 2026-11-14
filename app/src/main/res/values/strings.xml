@@ -52,4 +52,143 @@
 
     <string name="menu_account_signed_in">Signed in to Akinorev</string>
     <string name="menu_logout">Log out</string>
+
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_community">Community</string>
+    <string name="nav_emojis">Emojis</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="section_notifications_description">New followers, likes, comments and announcements from the community.</string>
+    <string name="section_community_description">Communities, chats and the people you follow, all in one place.</string>
+    <string name="section_emojis_description">Your own emoji collection for posts and chats.</string>
+    <string name="section_profile_description">Public profile, badges and subscriber name styling.</string>
+    <string name="profile_title">Profile</string>
+
+    <string name="subscription_title">Acinorev Crystal</string>
+    <string name="subscription_name">Crystal</string>
+    <string name="subscription_active_until">Active until %1$s</string>
+    <string name="subscription_android_note">Crystal subscription management will arrive in the Android app later. For now it can be purchased and renewed in the web client.</string>
+
+    <string name="settings_tabs_appearance">Appearance</string>
+    <string name="settings_tabs_notifications">Notifications</string>
+    <string name="settings_tabs_account">Account</string>
+
+    <string name="settings_themes_title">Themes</string>
+    <string name="settings_themes_description">Pick the color scheme that suits you</string>
+    <string name="themes_system">System</string>
+    <string name="themes_light">Light</string>
+    <string name="themes_dark">Dark</string>
+
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_description">Pick the language you prefer</string>
+    <string name="settings_language_system">System</string>
+    <string name="locales_en">English</string>
+    <string name="locales_ru">Русский</string>
+
+    <string name="settings_animations_title">Animations</string>
+    <string name="settings_animations_description">Smooth transitions and interface effects</string>
+    <string name="settings_animations_enabled">Interface animations</string>
+
+    <string name="settings_notifications_types_title">Notification types</string>
+    <string name="settings_notifications_types_description">Disabled notifications are not created and are not delivered as push messages</string>
+    <string name="settings_notifications_type_follow">New followers</string>
+    <string name="settings_notifications_type_block">Blocks</string>
+    <string name="settings_notifications_type_post">New posts</string>
+    <string name="settings_notifications_type_like">Post likes</string>
+    <string name="settings_notifications_type_broadcast">Admin announcements</string>
+    <string name="settings_notifications_load_failed">Could not load notification settings</string>
+    <string name="settings_notifications_save_failed">Could not save the setting. Try again.</string>
+    <string name="settings_notifications_retry">Try again</string>
+
+    <string name="settings_account_title">Account</string>
+    <string name="settings_account_description">Manage the current session</string>
+    <string name="settings_account_logout">Log out of account</string>
+
+    <string name="notifications_mark_all_read">Mark all read</string>
+    <string name="notifications_empty">No notifications yet</string>
+    <string name="notifications_just_now">just now</string>
+    <string name="notifications_minutes_ago">%1$d min ago</string>
+    <string name="notifications_hours_ago">%1$d hr ago</string>
+    <string name="notifications_followed_you">followed you</string>
+    <string name="notifications_blocked_you">blocked you</string>
+    <string name="notifications_new_post">published a new post</string>
+    <string name="notifications_liked_post">liked your post</string>
+    <string name="notifications_channel_name">Notifications</string>
+    <string name="notifications_channel_description">New followers, posts, likes and announcements</string>
+    <string name="library_title">My games</string>
+    <string name="library_subtitle">Games you have already played</string>
+    <string name="library_games_count">Games: %1$d</string>
+    <string name="library_total_playtime">Total playtime: %1$s</string>
+    <string name="library_last_played">Last played: %1$s</string>
+    <string name="library_empty">You haven\'t played any games yet</string>
+    <string name="library_empty_hint">Pick a game in the catalog and launch it — it will show up here</string>
+    <string name="library_to_catalog">Open catalog</string>
+    <string name="library_unavailable">Failed to load your games</string>
+    <string name="library_retry">Retry</string>
+    <string name="library_time_hours_minutes">%1$d h %2$d min</string>
+    <string name="library_time_hours">%1$d h</string>
+    <string name="library_time_minutes">%1$d min</string>
+    <string name="library_time_less_minute">less than a minute</string>
+    <string name="game_play">Play</string>
+    <string name="game_play_placeholder">The game player will appear here in a future update.</string>
+
+    <string name="genres_rpg">RPG</string>
+    <string name="genres_action">Action</string>
+    <string name="genres_puzzle">Puzzles</string>
+    <string name="genres_racing">Racing</string>
+    <string name="genres_casual">Casual</string>
+    <string name="genres_strategy">Strategy</string>
+    <string name="genres_shooter">Shooters</string>
+    <string name="genres_sports">Sports</string>
+    <string name="genres_adventure">Adventure</string>
+    <string name="genres_simulation">Simulation</string>
+    <string name="genres_platformer">Platformers</string>
+    <string name="genres_horror">Horror</string>
+    <string name="genres_indie">Indie</string>
+    <string name="genres_openworld">Open World</string>
+    <string name="genres_fighting">Fighting</string>
+    <string name="genres_sandbox">Sandbox</string>
+    <string name="genres_roleplay">Roleplay</string>
+    <string name="genres_arcade">Arcade</string>
+
+    <string name="emojis_title">Emojis</string>
+    <string name="emojis_description">Upload your own emojis in GIF or PNG format and use them in messages: type :name: in chat or pick one from the panel.</string>
+    <string name="emojis_upload">Upload emoji</string>
+    <string name="emojis_uploading">Uploading…</string>
+    <string name="emojis_empty">No emojis yet. Upload your first one!</string>
+    <string name="emojis_delete">Delete</string>
+    <string name="emojis_deleted">Emoji deleted</string>
+    <string name="emojis_delete_failed">Could not delete the emoji</string>
+    <string name="emojis_delete_confirm_title">Delete the emoji?</string>
+    <string name="emojis_delete_confirm_message">The emoji %1$s will disappear from all chats.</string>
+    <string name="emojis_cancel">Cancel</string>
+    <string name="emojis_discard_title">Leave the page?</string>
+    <string name="emojis_discard_message">Your changes will not be saved. Are you sure you want to leave?</string>
+    <string name="emojis_discard_confirm">Leave</string>
+    <string name="emojis_retry">Retry</string>
+    <string name="emojis_unavailable">Failed to load emojis</string>
+    <string name="emojis_pick_file">Choose a file</string>
+    <string name="emojis_pick_file_hint">GIF, PNG, WebP or JPEG up to 5 MB</string>
+    <string name="emojis_replace_file">Replace file</string>
+    <string name="emojis_name">Unique name</string>
+    <string name="emojis_name_placeholder">e.g. pepe</string>
+    <string name="emojis_name_hint">Special word: type</string>
+    <string name="emojis_title_label">Title</string>
+    <string name="emojis_title_placeholder">Emoji title</string>
+    <string name="emojis_description_label">Description</string>
+    <string name="emojis_description_placeholder">Short description of the emoji (optional)</string>
+    <string name="emojis_locked_title">Emoji upload is for subscribers</string>
+    <string name="emojis_locked_description">Get a Crystal subscription to upload your own emojis and use them in chats.</string>
+    <string name="emojis_create_title">New emoji</string>
+    <string name="emojis_create_subtitle">Pick an image and give the emoji a unique name</string>
+    <string name="emojis_error_format">Only GIF, PNG, WebP or JPEG files are allowed</string>
+    <string name="emojis_error_size">File is larger than 5 MB</string>
+    <string name="emojis_error_read_file">Could not read the selected file</string>
+    <string name="emojis_error_name_invalid">1–32 characters: latin letters, digits and underscore</string>
+    <string name="emojis_error_name_taken">This name is already taken</string>
+    <string name="emojis_error_server">Could not upload the emoji</string>
+    <string name="emojis_error_unknown">Something went wrong</string>
+    <string name="emojis_unauthorized_title">Sign in to see emojis</string>
+    <string name="emojis_unauthorized_description">Your emojis will show up here after you sign in.</string>
 </resources>
+

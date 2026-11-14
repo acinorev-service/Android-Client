@@ -10,14 +10,23 @@ import kotlinx.coroutines.launch
 import ru.fet1sov.akinorev.AcinorevApplication
 import ru.fet1sov.akinorev.data.auth.AuthRepository
 import ru.fet1sov.akinorev.data.auth.SessionState
+import ru.fet1sov.akinorev.ui.components.clearAvatarCache
 
 class SessionViewModel(
     private val repository: AuthRepository,
+    private val onSessionClosed: () -> Unit = ::clearAvatarCache,
 ) : ViewModel() {
     val state: StateFlow<SessionState> = repository.session
 
     init {
         viewModelScope.launch { repository.restoreSession() }
+        viewModelScope.launch { observeSession() }
+    }
+
+    private suspend fun observeSession() {
+        repository.session.collect { state ->
+            if (state == SessionState.Guest) onSessionClosed()
+        }
     }
 
     companion object {

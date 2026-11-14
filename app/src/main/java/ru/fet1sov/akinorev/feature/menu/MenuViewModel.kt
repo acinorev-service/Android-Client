@@ -14,12 +14,19 @@ import kotlinx.coroutines.launch
 import ru.fet1sov.akinorev.AcinorevApplication
 import ru.fet1sov.akinorev.data.auth.AuthRepository
 import ru.fet1sov.akinorev.data.auth.SessionState
+import ru.fet1sov.akinorev.model.UserProfileSummary
+import ru.fet1sov.akinorev.model.toProfileSummary
+import ru.fet1sov.akinorev.ui.format.formatSubscriptionExpiry
 
 data class MenuUiState(
-    val username: String = "",
-    val email: String = "",
+    val isAuthPending: Boolean = true,
+    val profile: UserProfileSummary? = null,
     val isLoggingOut: Boolean = false,
-)
+    val entries: List<MenuEntry> = MenuEntry.entries,
+) {
+    val subscriptionExpiry: String
+        get() = formatSubscriptionExpiry(profile?.subscriptionExpiresAt)
+}
 
 class MenuViewModel(
     private val repository: AuthRepository,
@@ -27,10 +34,9 @@ class MenuViewModel(
     private val loggingOut = MutableStateFlow(false)
 
     val uiState: StateFlow<MenuUiState> = combine(repository.session, loggingOut) { state, isLoggingOut ->
-        val user = (state as? SessionState.Authorized)?.user
         MenuUiState(
-            username = user?.username.orEmpty(),
-            email = user?.email.orEmpty(),
+            isAuthPending = state is SessionState.Loading,
+            profile = (state as? SessionState.Authorized)?.user?.toProfileSummary(),
             isLoggingOut = isLoggingOut,
         )
     }.stateIn(
@@ -38,6 +44,14 @@ class MenuViewModel(
         started = SharingStarted.WhileSubscribed(UI_STATE_SUBSCRIPTION_TIMEOUT_MILLIS),
         initialValue = MenuUiState(),
     )
+
+    init {
+        viewModelScope.launch { repository.restoreSession() }
+    }
+
+    fun refreshProfile() {
+        viewModelScope.launch { repository.fetchProfile() }
+    }
 
     fun logout() {
         if (loggingOut.value) return

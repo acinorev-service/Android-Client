@@ -6,6 +6,14 @@ plugins {
 
 val apiBaseUrl = (project.findProperty("apiBaseUrl") as String?) ?: "http://10.0.2.2:8080/api/"
 
+val cdnBaseUrl = (project.findProperty("cdnBaseUrl") as String?)
+    ?: apiBaseUrl.substringBefore("/api").substringBeforeLast(":") + ":8090/"
+
+val firebaseAppId = (project.findProperty("firebaseAppId") as String?) ?: ""
+val firebaseProjectId = (project.findProperty("firebaseProjectId") as String?) ?: ""
+val firebaseApiKey = (project.findProperty("firebaseApiKey") as String?) ?: ""
+val firebaseSenderId = (project.findProperty("firebaseSenderId") as String?) ?: ""
+
 android {
     namespace = "ru.fet1sov.akinorev"
     compileSdk {
@@ -22,6 +30,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        buildConfigField("String", "CDN_BASE_URL", "\"$cdnBaseUrl\"")
+        buildConfigField("String", "FIREBASE_APP_ID", "\"$firebaseAppId\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"$firebaseProjectId\"")
+        buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
+        buildConfigField("String", "FIREBASE_SENDER_ID", "\"$firebaseSenderId\"")
     }
 
     buildTypes {
@@ -44,6 +57,7 @@ android {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.firebase.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.compose.foundation)
@@ -57,6 +71,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.firebase.messaging)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.okhttp.bom))

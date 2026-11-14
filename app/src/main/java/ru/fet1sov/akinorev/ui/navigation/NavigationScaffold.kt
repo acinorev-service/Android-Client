@@ -14,15 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import ru.fet1sov.akinorev.R
 import ru.fet1sov.akinorev.feature.navigation.NavigationUiState
 import ru.fet1sov.akinorev.model.TopLevelDestination
 
@@ -45,21 +40,6 @@ fun NavigationScaffold(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-
-            Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp)) {
-                Text(
-                    text = stringResource(R.string.app_name),
-                    color = palette.textPrimary,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = stringResource(R.string.nav_caption),
-                    color = palette.textMuted,
-                    fontSize = 12.sp,
-                )
-            }
 
             Box(
                 modifier = Modifier

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import ru.fet1sov.akinorev.model.MenuDestination
 import ru.fet1sov.akinorev.model.TopLevelDestination
 
 class NavigationActions(
@@ -15,7 +16,7 @@ class NavigationActions(
                 saveState = true
             }
             launchSingleTop = true
-            restoreState = true
+            restoreState = destination != MenuDestination
         }
     }
 }

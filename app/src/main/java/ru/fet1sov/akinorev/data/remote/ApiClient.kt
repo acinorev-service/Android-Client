@@ -51,6 +51,31 @@ class ApiClient(
         return AuthResult.Failure(errorFrom(response))
     }
 
+    suspend fun executeNoContent(
+        retryOnUnauthorized: Boolean = true,
+        call: suspend () -> Response<*>,
+    ): AuthResult<Unit> {
+        val response = try {
+            call()
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (network: IOException) {
+            return AuthResult.Failure(AuthError.Network)
+        } catch (unexpected: Exception) {
+            return AuthResult.Failure(AuthError.Unexpected)
+        }
+
+        if (response.isSuccessful) return AuthResult.Success(Unit)
+
+        if (response.code() == 401 && retryOnUnauthorized && sessionManager.refreshToken() != null) {
+            if (refreshTokens() is AuthResult.Success) {
+                return executeNoContent(retryOnUnauthorized = false, call = call)
+            }
+        }
+
+        return AuthResult.Failure(errorFrom(response))
+    }
+
     suspend fun refreshTokens(): AuthResult<Unit> = refreshMutex.withLock {
         val refreshToken = sessionManager.refreshToken()
             ?: return@withLock AuthResult.Failure(AuthError.Server(Unauthorized, 401))

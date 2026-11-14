@@ -8,10 +8,14 @@ import ru.fet1sov.akinorev.data.auth.EncryptedSessionStorage
 import ru.fet1sov.akinorev.data.auth.SessionManager
 import ru.fet1sov.akinorev.data.catalog.CatalogRepository
 import ru.fet1sov.akinorev.data.catalog.DefaultCatalogRepository
+import ru.fet1sov.akinorev.data.community.CommunityRepository
+import ru.fet1sov.akinorev.data.community.DefaultCommunityRepository
 import ru.fet1sov.akinorev.data.emojis.ContentResolverEmojiFileSource
 import ru.fet1sov.akinorev.data.emojis.DefaultEmojisRepository
 import ru.fet1sov.akinorev.data.emojis.EmojiFileSource
 import ru.fet1sov.akinorev.data.emojis.EmojisRepository
+import ru.fet1sov.akinorev.data.files.ContentResolverImageFileSource
+import ru.fet1sov.akinorev.data.files.ImageFileSource
 import ru.fet1sov.akinorev.data.library.DefaultLibraryRepository
 import ru.fet1sov.akinorev.data.library.LibraryRepository
 import ru.fet1sov.akinorev.data.navigation.InMemoryNavigationRepository
@@ -50,6 +54,8 @@ interface AppContainer {
     val playSessionRepository: PlaySessionRepository
     val gameUrlResolver: GameUrlResolver
     val searchRepository: SearchRepository
+    val communityRepository: CommunityRepository
+    val imageFileSource: ImageFileSource
     val appSettingsRepository: AppSettingsRepository
     val realtimeSocket: RealtimeSocket
     val pushRegistrar: PushRegistrar
@@ -149,6 +155,19 @@ class DefaultAppContainer(
         DefaultSearchRepository(
             api = networkModule.api,
             client = apiClient,
+        )
+    }
+
+    override val imageFileSource: ImageFileSource by lazy {
+        ContentResolverImageFileSource(applicationContext)
+    }
+
+    override val communityRepository: CommunityRepository by lazy {
+        DefaultCommunityRepository(
+            api = networkModule.api,
+            cdnApi = networkModule.cdnApi,
+            client = apiClient,
+            imageFileSource = imageFileSource,
         )
     }
 

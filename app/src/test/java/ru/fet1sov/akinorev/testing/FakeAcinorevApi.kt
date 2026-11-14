@@ -6,7 +6,25 @@ import retrofit2.Response
 import ru.fet1sov.akinorev.data.remote.AcinorevApi
 import ru.fet1sov.akinorev.data.remote.dto.ApiEnvelope
 import ru.fet1sov.akinorev.data.remote.dto.AuthPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.BlockPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogAuthorDto
+import ru.fet1sov.akinorev.data.remote.dto.CommentLikePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CreateCommentRequest
+import ru.fet1sov.akinorev.data.remote.dto.CreatePostRequest
+import ru.fet1sov.akinorev.data.remote.dto.FollowPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostCommentPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostCommentsPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostLikePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostRepostPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostViewPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostsPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.ProfileRelationDto
+import ru.fet1sov.akinorev.data.remote.dto.ReportPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.ReportPostRequest
+import ru.fet1sov.akinorev.data.remote.dto.RepostRequest
+import ru.fet1sov.akinorev.data.remote.dto.UpdateCommentRequest
+import ru.fet1sov.akinorev.data.remote.dto.UpdatePostRequest
 import ru.fet1sov.akinorev.data.remote.dto.CatalogDeveloperDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGameDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGamePayloadDto
@@ -85,6 +103,58 @@ class FakeAcinorevApi : AcinorevApi {
     var onUpdateEmoji: suspend (String, EmojiUpdateRequest) -> Response<ApiEnvelope<EmojiPayloadDto>> =
         { _, _ -> error(404) }
     var onDeleteEmoji: suspend (String) -> Response<ApiEnvelope<EmojiDeletedDto>> = { error(404) }
+    var onGetPosts: suspend (String, Int, Int) -> Response<ApiEnvelope<PostsPayloadDto>> =
+        { _, _, _ -> error(404) }
+    var onCreatePost: suspend (String, CreatePostRequest) -> Response<ApiEnvelope<PostPayloadDto>> =
+        { _, _ -> error(404) }
+    var onUpdatePost: suspend (String, String, UpdatePostRequest) -> Response<ApiEnvelope<PostPayloadDto>> =
+        { _, _, _ -> error(404) }
+    var onDeletePost: suspend (String, String) -> Response<Unit> = { _, _ -> error(404) }
+    var onPinPost: suspend (String, String) -> Response<ApiEnvelope<PostPayloadDto>> =
+        { _, _ -> error(404) }
+    var onUnpinPost: suspend (String, String) -> Response<ApiEnvelope<PostPayloadDto>> =
+        { _, _ -> error(404) }
+    var onLikePost: suspend (String, String) -> Response<ApiEnvelope<PostLikePayloadDto>> =
+        { _, _ -> error(404) }
+    var onUnlikePost: suspend (String, String) -> Response<ApiEnvelope<PostLikePayloadDto>> =
+        { _, _ -> error(404) }
+    var onRepostPost: suspend (String, String, RepostRequest) -> Response<ApiEnvelope<PostRepostPayloadDto>> =
+        { _, _, _ -> error(404) }
+    var onUnrepostPost: suspend (String, String) -> Response<ApiEnvelope<PostRepostPayloadDto>> =
+        { _, _ -> error(404) }
+    var onViewPost: suspend (String, String) -> Response<ApiEnvelope<PostViewPayloadDto>> =
+        { _, _ -> error(404) }
+    var onReportPost: suspend (String, String, ReportPostRequest) -> Response<ApiEnvelope<ReportPayloadDto>> =
+        { _, _, _ -> error(404) }
+    var onGetPostComments: suspend (String, String, Int, Int) -> Response<ApiEnvelope<PostCommentsPayloadDto>> =
+        { _, _, _, _ -> error(404) }
+    var onCreatePostComment: suspend (
+        String,
+        String,
+        CreateCommentRequest,
+    ) -> Response<ApiEnvelope<PostCommentPayloadDto>> = { _, _, _ -> error(404) }
+    var onUpdatePostComment: suspend (
+        String,
+        String,
+        String,
+        UpdateCommentRequest,
+    ) -> Response<ApiEnvelope<PostCommentPayloadDto>> = { _, _, _, _ -> error(404) }
+    var onDeletePostComment: suspend (String, String, String) -> Response<Unit> = { _, _, _ -> error(404) }
+    var onLikePostComment: suspend (
+        String,
+        String,
+        String,
+    ) -> Response<ApiEnvelope<CommentLikePayloadDto>> = { _, _, _ -> error(404) }
+    var onUnlikePostComment: suspend (
+        String,
+        String,
+        String,
+    ) -> Response<ApiEnvelope<CommentLikePayloadDto>> = { _, _, _ -> error(404) }
+    var onGetRelation: suspend (String) -> Response<ApiEnvelope<ProfileRelationDto>> = { error(404) }
+    var onFollowUser: suspend (String) -> Response<ApiEnvelope<FollowPayloadDto>> = { error(404) }
+    var onUnfollowUser: suspend (String) -> Response<ApiEnvelope<FollowPayloadDto>> = { error(404) }
+    var onBlockUser: suspend (String) -> Response<ApiEnvelope<BlockPayloadDto>> = { error(404) }
+    var onUnblockUser: suspend (String) -> Response<ApiEnvelope<BlockPayloadDto>> = { error(404) }
 
     var onGetGames: suspend (Int, Int, String?, String?, String?) -> Response<ApiEnvelope<CatalogGamesPayloadDto>> =
         { _, _, _, _, _ -> error(404) }
@@ -164,6 +234,112 @@ class FakeAcinorevApi : AcinorevApi {
     ): Response<ApiEnvelope<EmojiPayloadDto>> = onUpdateEmoji(id, body)
 
     override suspend fun deleteEmoji(id: String): Response<ApiEnvelope<EmojiDeletedDto>> = onDeleteEmoji(id)
+
+    override suspend fun getPosts(
+        username: String,
+        limit: Int,
+        offset: Int,
+    ): Response<ApiEnvelope<PostsPayloadDto>> = onGetPosts(username, limit, offset)
+
+    override suspend fun createPost(
+        username: String,
+        body: CreatePostRequest,
+    ): Response<ApiEnvelope<PostPayloadDto>> = onCreatePost(username, body)
+
+    override suspend fun updatePost(
+        username: String,
+        id: String,
+        body: UpdatePostRequest,
+    ): Response<ApiEnvelope<PostPayloadDto>> = onUpdatePost(username, id, body)
+
+    override suspend fun deletePost(username: String, id: String): Response<Unit> =
+        onDeletePost(username, id)
+
+    override suspend fun pinPost(username: String, id: String): Response<ApiEnvelope<PostPayloadDto>> =
+        onPinPost(username, id)
+
+    override suspend fun unpinPost(username: String, id: String): Response<ApiEnvelope<PostPayloadDto>> =
+        onUnpinPost(username, id)
+
+    override suspend fun likePost(username: String, id: String): Response<ApiEnvelope<PostLikePayloadDto>> =
+        onLikePost(username, id)
+
+    override suspend fun unlikePost(username: String, id: String): Response<ApiEnvelope<PostLikePayloadDto>> =
+        onUnlikePost(username, id)
+
+    override suspend fun repostPost(
+        username: String,
+        id: String,
+        body: RepostRequest,
+    ): Response<ApiEnvelope<PostRepostPayloadDto>> = onRepostPost(username, id, body)
+
+    override suspend fun unrepostPost(
+        username: String,
+        id: String,
+    ): Response<ApiEnvelope<PostRepostPayloadDto>> = onUnrepostPost(username, id)
+
+    override suspend fun viewPost(username: String, id: String): Response<ApiEnvelope<PostViewPayloadDto>> =
+        onViewPost(username, id)
+
+    override suspend fun reportPost(
+        username: String,
+        id: String,
+        body: ReportPostRequest,
+    ): Response<ApiEnvelope<ReportPayloadDto>> = onReportPost(username, id, body)
+
+    override suspend fun getPostComments(
+        username: String,
+        id: String,
+        limit: Int,
+        offset: Int,
+    ): Response<ApiEnvelope<PostCommentsPayloadDto>> = onGetPostComments(username, id, limit, offset)
+
+    override suspend fun createPostComment(
+        username: String,
+        id: String,
+        body: CreateCommentRequest,
+    ): Response<ApiEnvelope<PostCommentPayloadDto>> = onCreatePostComment(username, id, body)
+
+    override suspend fun updatePostComment(
+        username: String,
+        id: String,
+        commentId: String,
+        body: UpdateCommentRequest,
+    ): Response<ApiEnvelope<PostCommentPayloadDto>> =
+        onUpdatePostComment(username, id, commentId, body)
+
+    override suspend fun deletePostComment(
+        username: String,
+        id: String,
+        commentId: String,
+    ): Response<Unit> = onDeletePostComment(username, id, commentId)
+
+    override suspend fun likePostComment(
+        username: String,
+        id: String,
+        commentId: String,
+    ): Response<ApiEnvelope<CommentLikePayloadDto>> = onLikePostComment(username, id, commentId)
+
+    override suspend fun unlikePostComment(
+        username: String,
+        id: String,
+        commentId: String,
+    ): Response<ApiEnvelope<CommentLikePayloadDto>> = onUnlikePostComment(username, id, commentId)
+
+    override suspend fun getRelation(username: String): Response<ApiEnvelope<ProfileRelationDto>> =
+        onGetRelation(username)
+
+    override suspend fun followUser(username: String): Response<ApiEnvelope<FollowPayloadDto>> =
+        onFollowUser(username)
+
+    override suspend fun unfollowUser(username: String): Response<ApiEnvelope<FollowPayloadDto>> =
+        onUnfollowUser(username)
+
+    override suspend fun blockUser(username: String): Response<ApiEnvelope<BlockPayloadDto>> =
+        onBlockUser(username)
+
+    override suspend fun unblockUser(username: String): Response<ApiEnvelope<BlockPayloadDto>> =
+        onUnblockUser(username)
 
     override suspend fun getGames(
         limit: Int,

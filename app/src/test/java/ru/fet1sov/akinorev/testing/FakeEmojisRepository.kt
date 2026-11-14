@@ -20,6 +20,7 @@ class FakeEmojisRepository : EmojisRepository {
     var fetchResult: AuthResult<EmojiPage>? = null
     var uploadResult: AuthResult<Emoji> = AuthResult.Failure(AuthError.Unexpected)
     var deleteResult: AuthResult<String> = AuthResult.Success("")
+    var resolvedUrls: Map<String, String> = emptyMap()
 
     override suspend fun fetchPage(page: Int, limit: Int): AuthResult<EmojiPage> {
         requestedPages += page
@@ -40,6 +41,11 @@ class FakeEmojisRepository : EmojisRepository {
     override suspend fun delete(id: String): AuthResult<String> {
         deletedIds += id
         return deleteResult
+    }
+
+    override suspend fun resolveUrls(names: Collection<String>): Map<String, String> {
+        val requested = names.map(String::lowercase).toSet()
+        return resolvedUrls.filterKeys { it.lowercase() in requested }
     }
 }
 

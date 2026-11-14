@@ -30,6 +30,30 @@ data class UserDto(
     @SerialName("name_animation") val nameAnimation: String = "",
     val locale: String = "",
     @SerialName("created_at") val createdAt: String? = null,
+    @SerialName("last_seen") val lastSeen: String? = null,
+    @SerialName("last_seen_device") val lastSeenDevice: String? = null,
+    @SerialName("followers_count") val followersCount: Int = 0,
+    @SerialName("following_count") val followingCount: Int = 0,
+    @SerialName("is_blocked") val isBlocked: Boolean = false,
+    @SerialName("equipped_badges") val equippedBadges: List<EquippedBadgeDto>? = null,
+)
+
+@Serializable
+data class EquippedBadgeDto(
+    @SerialName("user_item_id") val userItemId: String = "",
+    @SerialName("item_id") val itemId: String = "",
+    @SerialName("equipped_order") val equippedOrder: Int = 0,
+    val item: BadgeItemDto? = null,
+)
+
+@Serializable
+data class BadgeItemDto(
+    val id: String = "",
+    val slug: String = "",
+    val name: String = "",
+    val type: String = "",
+    val rarity: String = "",
+    val icon: String? = null,
 )
 
 @Serializable

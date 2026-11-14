@@ -1,5 +1,8 @@
 package ru.fet1sov.akinorev.data.emojis
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -24,6 +27,8 @@ class DefaultEmojisRepository(
     private val cdnApi: CdnApi,
     private val client: ApiClient,
 ) : EmojisRepository {
+    private val urlCache = mutableMapOf<String, String>()
+
     override suspend fun fetchPage(page: Int, limit: Int): AuthResult<EmojiPage> =
         when (val result = client.execute { api.getEmojis(page = page, limit = limit) }) {
             is AuthResult.Success -> AuthResult.Success(result.value.toDomain())
@@ -64,10 +69,33 @@ class DefaultEmojisRepository(
     }
 
     override suspend fun delete(id: String): AuthResult<String> =
-        when (val result = client.execute { api.deleteEmoji(id = id) }) {
+        when (val result = client.execute { api.deleteEmoji(id) }) {
             is AuthResult.Success -> AuthResult.Success(result.value.emojiId.ifBlank { id })
             is AuthResult.Failure -> result
         }
+
+    override suspend fun resolveUrls(names: Collection<String>): Map<String, String> = coroutineScope {
+        val normalized = names.map(String::lowercase).filter(String::isNotBlank).distinct()
+        val pending = normalized.filter { it !in urlCache }.take(EmojiLookupLimit)
+
+        pending.map { name ->
+            async {
+                when (val result = client.execute { api.getEmojiByName(name) }) {
+                    is AuthResult.Success -> result.value.emoji?.url
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { url -> urlCache[name] = url }
+
+                    is AuthResult.Failure -> Unit
+                }
+            }
+        }.awaitAll()
+
+        normalized.mapNotNull { name -> urlCache[name]?.let { name to it } }.toMap()
+    }
+
+    private companion object {
+        const val EmojiLookupLimit = 48
+    }
 
     private fun EmojiDto?.toEmojiResult(): AuthResult<Emoji> {
         val emoji = this?.toDomain() ?: return AuthResult.Failure(AuthError.Unexpected)

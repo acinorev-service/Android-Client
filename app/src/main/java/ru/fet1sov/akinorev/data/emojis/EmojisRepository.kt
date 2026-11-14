@@ -19,4 +19,6 @@ interface EmojisRepository {
     suspend fun update(id: String, metadata: EmojiMetadata): AuthResult<Emoji>
 
     suspend fun delete(id: String): AuthResult<String>
+
+    suspend fun resolveUrls(names: Collection<String>): Map<String, String>
 }

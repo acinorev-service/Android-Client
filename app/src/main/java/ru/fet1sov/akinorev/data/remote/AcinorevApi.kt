@@ -14,6 +14,11 @@ import ru.fet1sov.akinorev.data.remote.dto.AuthPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGamePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGamesPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGenresPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.BlockPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CommentLikePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.CreateCommentRequest
+import ru.fet1sov.akinorev.data.remote.dto.CreatePostRequest
+import ru.fet1sov.akinorev.data.remote.dto.FollowPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.GamePlayersPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.DepositKeyRequest
 import ru.fet1sov.akinorev.data.remote.dto.EmojiDeletedDto
@@ -21,6 +26,19 @@ import ru.fet1sov.akinorev.data.remote.dto.EmojiListDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.EmojiRegisterRequest
 import ru.fet1sov.akinorev.data.remote.dto.EmojiUpdateRequest
+import ru.fet1sov.akinorev.data.remote.dto.PostCommentPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostCommentsPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostLikePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostRepostPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostViewPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PostsPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.ProfileRelationDto
+import ru.fet1sov.akinorev.data.remote.dto.ReportPayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.ReportPostRequest
+import ru.fet1sov.akinorev.data.remote.dto.RepostRequest
+import ru.fet1sov.akinorev.data.remote.dto.UpdateCommentRequest
+import ru.fet1sov.akinorev.data.remote.dto.UpdatePostRequest
 import ru.fet1sov.akinorev.data.remote.dto.KeyCustodyDto
 import ru.fet1sov.akinorev.data.remote.dto.LibraryGamesPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.LocaleDto
@@ -66,6 +84,151 @@ interface AcinorevApi {
     suspend fun getUser(
         @Path("username") username: String,
     ): Response<ApiEnvelope<PublicUserPayloadDto>>
+
+    @GET("user/{username}/posts")
+    suspend fun getPosts(
+        @Path("username") username: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+    ): Response<ApiEnvelope<PostsPayloadDto>>
+
+    @POST("user/{username}/posts")
+    suspend fun createPost(
+        @Path("username") username: String,
+        @Body body: CreatePostRequest,
+    ): Response<ApiEnvelope<PostPayloadDto>>
+
+    @PUT("user/{username}/posts/{id}")
+    suspend fun updatePost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Body body: UpdatePostRequest,
+    ): Response<ApiEnvelope<PostPayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}")
+    suspend fun deletePost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<Unit>
+
+    @POST("user/{username}/posts/{id}/pin")
+    suspend fun pinPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostPayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}/pin")
+    suspend fun unpinPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostPayloadDto>>
+
+    @POST("user/{username}/posts/{id}/like")
+    suspend fun likePost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostLikePayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}/like")
+    suspend fun unlikePost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostLikePayloadDto>>
+
+    @POST("user/{username}/posts/{id}/repost")
+    suspend fun repostPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Body body: RepostRequest,
+    ): Response<ApiEnvelope<PostRepostPayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}/repost")
+    suspend fun unrepostPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostRepostPayloadDto>>
+
+    @POST("user/{username}/posts/{id}/view")
+    suspend fun viewPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+    ): Response<ApiEnvelope<PostViewPayloadDto>>
+
+    @POST("user/{username}/posts/{id}/report")
+    suspend fun reportPost(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Body body: ReportPostRequest,
+    ): Response<ApiEnvelope<ReportPayloadDto>>
+
+    @GET("user/{username}/posts/{id}/comments")
+    suspend fun getPostComments(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+    ): Response<ApiEnvelope<PostCommentsPayloadDto>>
+
+    @POST("user/{username}/posts/{id}/comments")
+    suspend fun createPostComment(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Body body: CreateCommentRequest,
+    ): Response<ApiEnvelope<PostCommentPayloadDto>>
+
+    @PUT("user/{username}/posts/{id}/comments/{commentId}")
+    suspend fun updatePostComment(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Path("commentId") commentId: String,
+        @Body body: UpdateCommentRequest,
+    ): Response<ApiEnvelope<PostCommentPayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}/comments/{commentId}")
+    suspend fun deletePostComment(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Path("commentId") commentId: String,
+    ): Response<Unit>
+
+    @POST("user/{username}/posts/{id}/comments/{commentId}/like")
+    suspend fun likePostComment(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Path("commentId") commentId: String,
+    ): Response<ApiEnvelope<CommentLikePayloadDto>>
+
+    @DELETE("user/{username}/posts/{id}/comments/{commentId}/like")
+    suspend fun unlikePostComment(
+        @Path("username") username: String,
+        @Path("id") id: String,
+        @Path("commentId") commentId: String,
+    ): Response<ApiEnvelope<CommentLikePayloadDto>>
+
+    @GET("user/{username}/relation")
+    suspend fun getRelation(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<ProfileRelationDto>>
+
+    @POST("user/{username}/follow")
+    suspend fun followUser(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<FollowPayloadDto>>
+
+    @DELETE("user/{username}/follow")
+    suspend fun unfollowUser(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<FollowPayloadDto>>
+
+    @POST("user/{username}/block")
+    suspend fun blockUser(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<BlockPayloadDto>>
+
+    @DELETE("user/{username}/block")
+    suspend fun unblockUser(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<BlockPayloadDto>>
 
     @PATCH("user/profile")
     suspend fun updateProfile(@Body body: UpdateProfileRequest): Response<ApiEnvelope<ProfilePayloadDto>>

@@ -19,7 +19,7 @@ import ru.fet1sov.akinorev.feature.create.CreateScreen
 import ru.fet1sov.akinorev.feature.emojis.EmojiCreateScreen
 import ru.fet1sov.akinorev.feature.emojis.EmojisScreen
 import ru.fet1sov.akinorev.feature.games.GamesScreen
-import ru.fet1sov.akinorev.feature.games.PlayScreen
+import ru.fet1sov.akinorev.feature.games.play.PlayScreen
 import ru.fet1sov.akinorev.feature.home.HomeScreen
 import ru.fet1sov.akinorev.feature.menu.MenuScreen
 import ru.fet1sov.akinorev.feature.messages.MessagesScreen
@@ -74,7 +74,11 @@ fun AcinorevNavHost(
         },
     ) {
         composable<HomeDestination> {
-            HomeScreen()
+            HomeScreen(
+                onPlay = { gameId, title ->
+                    navController.navigate(PlayDestination(gameId = gameId, title = title))
+                },
+            )
         }
         composable<MessagesDestination> {
             MessagesScreen()
@@ -100,7 +104,11 @@ fun AcinorevNavHost(
         }
         composable<PlayDestination> { entry ->
             val destination = entry.toRoute<PlayDestination>()
-            PlayScreen(gameId = destination.gameId, title = destination.title)
+            PlayScreen(
+                gameId = destination.gameId,
+                title = destination.title,
+                onBack = { navController.popBackStack() },
+            )
         }
         composable<NotificationsDestination> {
             NotificationsScreen(onOpenProfile = menuActions::openProfile)

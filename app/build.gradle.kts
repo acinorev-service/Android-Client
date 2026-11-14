@@ -9,6 +9,8 @@ val apiBaseUrl = (project.findProperty("apiBaseUrl") as String?) ?: "http://10.0
 val cdnBaseUrl = (project.findProperty("cdnBaseUrl") as String?)
     ?: apiBaseUrl.substringBefore("/api").substringBeforeLast(":") + ":8090/"
 
+val siteUrl = ((project.findProperty("siteUrl") as String?) ?: "https://akinorev.su").trimEnd('/')
+
 val firebaseAppId = (project.findProperty("firebaseAppId") as String?) ?: ""
 val firebaseProjectId = (project.findProperty("firebaseProjectId") as String?) ?: ""
 val firebaseApiKey = (project.findProperty("firebaseApiKey") as String?) ?: ""
@@ -31,6 +33,7 @@ android {
 
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "CDN_BASE_URL", "\"$cdnBaseUrl\"")
+        buildConfigField("String", "SITE_URL", "\"$siteUrl\"")
         buildConfigField("String", "FIREBASE_APP_ID", "\"$firebaseAppId\"")
         buildConfigField("String", "FIREBASE_PROJECT_ID", "\"$firebaseProjectId\"")
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")

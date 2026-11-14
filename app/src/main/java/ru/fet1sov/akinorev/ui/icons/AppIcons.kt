@@ -30,6 +30,17 @@ enum class AppIconKind {
     Plus,
     Trashbin,
     Logout,
+    Play,
+    Crosshair,
+    Joystick,
+    ArrowRight,
+    Eye,
+    Expand,
+    Collapse,
+    Copy,
+    Users,
+    CloudOff,
+    Refresh,
 }
 
 @Composable
@@ -71,6 +82,17 @@ private fun AppIconKind.toVector(): ImageVector? = when (this) {
     AppIconKind.Plus -> AppIcons.Plus
     AppIconKind.Trashbin -> AppIcons.Trashbin
     AppIconKind.Logout -> AppIcons.DoorOut
+    AppIconKind.Play -> AppIcons.Play
+    AppIconKind.Crosshair -> AppIcons.Crosshair
+    AppIconKind.Joystick -> AppIcons.Joystick
+    AppIconKind.ArrowRight -> AppIcons.ArrowRight
+    AppIconKind.Eye -> AppIcons.Eye
+    AppIconKind.Expand -> AppIcons.Expand
+    AppIconKind.Collapse -> AppIcons.Collapse
+    AppIconKind.Copy -> AppIcons.Copy
+    AppIconKind.Users -> AppIcons.Users
+    AppIconKind.CloudOff -> AppIcons.CloudOff
+    AppIconKind.Refresh -> AppIcons.Refresh
     AppIconKind.Home,
     AppIconKind.Logotype,
     -> null
@@ -200,6 +222,103 @@ object AppIcons {
             TrashbinHandle,
             TrashbinBarLeft,
             TrashbinBarRight,
+        )
+    }
+
+    val Play: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape(
+                "M8 5.14v13.72c0 .79.87 1.27 1.53.81l10.05-6.86c.56-.38.56-1.24 0-1.62" +
+                    "L9.53 4.33C8.87 3.87 8 4.35 8 5.14Z",
+            ),
+        )
+    }
+
+    val Crosshair: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M12 2v4M12 18v4M2 12h4M18 12h4", strokeWidth = 2f),
+            VectorShape("M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8", strokeWidth = 2f),
+        )
+    }
+
+    val Joystick: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z", PathFillType.EvenOdd),
+            VectorShape("M12 8v5", strokeWidth = 2f),
+            VectorShape("M5 21c0-3.87 3.13-7 7-7s7 3.13 7 7", strokeWidth = 2f),
+        )
+    }
+
+    val ArrowRight: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M4 12h15M13 6l6 6-6 6", strokeWidth = 2f),
+        )
+    }
+
+    val Eye: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape(
+                "M12 4.5C7 4.5 3 9 2 12c1 3 5 7.5 10 7.5S21 15 22 12c-1-3-5-7.5-10-7.5z" +
+                    "m0 13a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" +
+                    "m0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
+                PathFillType.EvenOdd,
+            ),
+        )
+    }
+
+    val Expand: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5", strokeWidth = 2f),
+        )
+    }
+
+    val Collapse: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5", strokeWidth = 2f),
+        )
+    }
+
+    val Copy: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M9 9h10v10H9z", strokeWidth = 2f),
+            VectorShape("M6 15H4V4h12v2", strokeWidth = 2f),
+        )
+    }
+
+    val Users: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M8 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z", PathFillType.EvenOdd),
+            VectorShape("M1.5 20a6.5 6.5 0 0 1 13 0Z", PathFillType.EvenOdd),
+            VectorShape("M16 11.5a3 3 0 1 0 0-6", strokeWidth = 2f),
+            VectorShape("M17.5 13.5c3 0 5 2.3 5 6h-4.6", strokeWidth = 2f),
+        )
+    }
+
+    val CloudOff: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M3 3l18 18", strokeWidth = 2f),
+            VectorShape(
+                "M7.5 18a4.5 4.5 0 0 1-.4-8.98M10.5 18h7a3.5 3.5 0 0 0 2.2-6.22M9 9a5.5 5.5 0 0 1 8 4.3",
+                strokeWidth = 2f,
+            ),
+        )
+    }
+
+    val Refresh: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M20 12a8 8 0 1 1-2.34-5.66", strokeWidth = 2f),
+            VectorShape("M20 4v5h-5", strokeWidth = 2f),
         )
     }
 }

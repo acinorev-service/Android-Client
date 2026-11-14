@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Akinorev</string>
     <string name="nav_caption">Android client</string>
@@ -190,5 +190,39 @@
     <string name="emojis_error_unknown">Something went wrong</string>
     <string name="emojis_unauthorized_title">Sign in to see emojis</string>
     <string name="emojis_unauthorized_description">Your emojis will show up here after you sign in.</string>
-</resources>
+
+    <string name="home_title">Game catalog</string>
+    <string name="home_search_placeholder">Search games</string>
+    <string name="home_all_genres">All genres</string>
+    <string name="home_unavailable">Failed to load the catalog</string>
+    <string name="home_empty">No games found</string>
+    <string name="home_empty_hint">Try another query or pick a different genre</string>
+    <string name="home_retry">Retry</string>
+    <string name="home_games_count">Games: %1$d</string>
+
+    <string name="play_title">Game</string>
+    <string name="play_players_count">%1$d playing now</string>
+    <string name="play_invite">Invite</string>
+    <string name="play_invite_title">Invite to the game</string>
+    <string name="play_invite_hint">Share the room code or the link with a friend so they can join your session.</string>
+    <string name="play_room">Room code</string>
+    <string name="play_copy_link">Copy link</string>
+    <string name="play_share_link">Share</string>
+    <string name="play_link_copied">Link copied</string>
+    <string name="play_close">Close</string>
+    <string name="play_unavailable_mobile">Not available on mobile</string>
+    <string name="play_unavailable_description">The developer has not enabled mobile support for this game.</string>
+    <string name="play_fullscreen">Fullscreen</string>
+    <string name="play_exit_fullscreen">Exit fullscreen</string>
+    <string name="play_loading">Loading the game…</string>
+    <string name="play_load_error">Failed to load the game</string>
+    <string name="play_retry">Retry</string>
+    <string name="play_not_found">Game not found</string>
+    <string name="play_not_found_description">It may have been unpublished.</string>
+    <string name="play_no_description">No description yet</string>
+    <string name="play_developer">Developer</string>
+    <string name="play_released">Released</string>
+    <string name="play_other_games">More games</string>
+</resources>
+
 

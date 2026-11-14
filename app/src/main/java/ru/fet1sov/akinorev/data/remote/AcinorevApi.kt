@@ -1,4 +1,4 @@
-package ru.fet1sov.akinorev.data.remote
+﻿package ru.fet1sov.akinorev.data.remote
 
 import retrofit2.Response
 import retrofit2.http.Body
@@ -31,6 +31,7 @@ import ru.fet1sov.akinorev.data.remote.dto.NotificationListDto
 import ru.fet1sov.akinorev.data.remote.dto.NotificationPreferencesPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PlayStatePayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ProfilePayloadDto
+import ru.fet1sov.akinorev.data.remote.dto.PublicUserPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PushDeviceResponse
 import ru.fet1sov.akinorev.data.remote.dto.RefreshRequest
 import ru.fet1sov.akinorev.data.remote.dto.RegisterPushDeviceRequest
@@ -60,6 +61,11 @@ interface AcinorevApi {
 
     @GET("user/profile")
     suspend fun getProfile(): Response<ApiEnvelope<ProfilePayloadDto>>
+
+    @GET("user/{username}")
+    suspend fun getUser(
+        @Path("username") username: String,
+    ): Response<ApiEnvelope<PublicUserPayloadDto>>
 
     @PATCH("user/profile")
     suspend fun updateProfile(@Body body: UpdateProfileRequest): Response<ApiEnvelope<ProfilePayloadDto>>
@@ -148,6 +154,11 @@ interface AcinorevApi {
         @Query("limit") limit: Int,
     ): Response<ApiEnvelope<EmojiListDto>>
 
+    @GET("emojis/name/{name}")
+    suspend fun getEmojiByName(
+        @Path("name") name: String,
+    ): Response<ApiEnvelope<EmojiPayloadDto>>
+
     @POST("emojis")
     suspend fun createEmoji(
         @Body body: EmojiRegisterRequest,
@@ -164,3 +175,4 @@ interface AcinorevApi {
         @Path("id") id: String,
     ): Response<ApiEnvelope<EmojiDeletedDto>>
 }
+

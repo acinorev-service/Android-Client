@@ -25,6 +25,7 @@ data class SearchUiState(
     val total: Int = 0,
     val limit: Int = SearchPageSize,
     val hasError: Boolean = false,
+    val emojis: Map<String, String> = emptyMap(),
 ) {
     val hasResults: Boolean
         get() = groups.isNotEmpty()
@@ -103,6 +104,7 @@ class SearchViewModel(
                     groups = result.value.groups,
                     total = result.value.total,
                     hasError = false,
+                    emojis = result.value.emojis,
                 )
             }
 
@@ -112,6 +114,7 @@ class SearchViewModel(
                     groups = emptyList(),
                     total = 0,
                     hasError = true,
+                    emojis = emptyMap(),
                 )
             }
         }

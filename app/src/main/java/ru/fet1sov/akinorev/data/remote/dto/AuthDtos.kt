@@ -59,6 +59,11 @@ data class ProfilePayloadDto(
 )
 
 @Serializable
+data class PublicUserPayloadDto(
+    val user: UserDto? = null,
+)
+
+@Serializable
 data class KeyCustodyDto(
     val deposited: Boolean? = null,
     @SerialName("private_key") val privateKey: String? = null,

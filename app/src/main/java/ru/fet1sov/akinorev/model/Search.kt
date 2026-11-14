@@ -26,6 +26,9 @@ sealed interface SearchResult {
         val username: String,
         val avatarPath: String,
         val bio: String,
+        val nameColor: String = "",
+        val nameAnimation: String = "",
+        val isSubscribed: Boolean = false,
     ) : SearchResult
 }
 
@@ -38,4 +41,5 @@ data class SearchPage(
     val query: String,
     val groups: List<SearchGroup>,
     val total: Int,
+    val emojis: Map<String, String> = emptyMap(),
 )

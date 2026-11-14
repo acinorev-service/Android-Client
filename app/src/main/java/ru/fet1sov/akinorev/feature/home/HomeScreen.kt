@@ -58,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,8 +68,10 @@ import ru.fet1sov.akinorev.feature.search.SearchUiState
 import ru.fet1sov.akinorev.feature.search.SearchViewModel
 import ru.fet1sov.akinorev.model.SearchCategory
 import ru.fet1sov.akinorev.model.SearchResult
+import ru.fet1sov.akinorev.ui.components.EmojiRichText
 import ru.fet1sov.akinorev.ui.components.RemoteImage
 import ru.fet1sov.akinorev.ui.components.SkeletonBlock
+import ru.fet1sov.akinorev.ui.components.StyledName
 import ru.fet1sov.akinorev.ui.components.UserAvatar
 import ru.fet1sov.akinorev.ui.components.resolveMediaUrl
 import ru.fet1sov.akinorev.ui.format.genreDisplayName
@@ -367,6 +370,7 @@ private fun SearchPane(
                     items(group.results, key = { result -> resultKey(result) }) { result ->
                         SearchResultRow(
                             result = result,
+                            emojiUrls = state.emojis,
                             palette = palette,
                             onPlay = onPlay,
                             onOpenUser = onOpenUser,
@@ -451,6 +455,7 @@ private fun SearchSkeleton(palette: NavigationPalette) {
 @Composable
 private fun SearchResultRow(
     result: SearchResult,
+    emojiUrls: Map<String, String>,
     palette: NavigationPalette,
     onPlay: (String, String) -> Unit,
     onOpenUser: (String) -> Unit,
@@ -479,12 +484,24 @@ private fun SearchResultRow(
                 username = result.username,
                 size = 44.dp,
             )
-            SearchRowText(
-                title = result.username,
-                subtitle = result.bio,
-                palette = palette,
-                prefix = "@",
-            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                StyledName(
+                    text = result.username,
+                    nameColor = if (result.isSubscribed) result.nameColor else "",
+                    nameAnimation = if (result.isSubscribed) result.nameAnimation else "",
+                    fallbackColor = palette.textPrimary,
+                    fontSize = 14.sp,
+                )
+                if (result.bio.isNotBlank()) {
+                    EmojiRichText(
+                        text = result.bio,
+                        emojiUrls = emojiUrls,
+                        style = TextStyle(color = palette.textMuted, fontSize = 11.sp),
+                        maxLines = 1,
+                    )
+                }
+            }
         }
 
         is SearchResult.Developer -> SearchRowSurface(palette = palette) {

@@ -1,5 +1,8 @@
 package ru.fet1sov.akinorev.data.search
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import ru.fet1sov.akinorev.data.catalog.toDomain
 import ru.fet1sov.akinorev.data.remote.AcinorevApi
 import ru.fet1sov.akinorev.data.remote.ApiClient
@@ -16,6 +19,8 @@ class DefaultSearchRepository(
     private val api: AcinorevApi,
     private val client: ApiClient,
 ) : SearchRepository {
+    private val emojiCache = mutableMapOf<String, String>()
+
     override suspend fun search(query: String, limit: Int): AuthResult<SearchPage> {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) {
@@ -23,16 +28,95 @@ class DefaultSearchRepository(
         }
 
         return when (val result = client.execute { api.search(trimmed, limit) }) {
-            is AuthResult.Success -> AuthResult.Success(
-                SearchPage(
-                    query = result.value.query.ifBlank { trimmed },
-                    groups = result.value.categories.mapNotNull(SearchCategoryDto::toGroup),
-                    total = result.value.total,
-                ),
-            )
+            is AuthResult.Success -> {
+                val groups = enrichUsers(result.value.categories.mapNotNull(SearchCategoryDto::toGroup))
+                AuthResult.Success(
+                    SearchPage(
+                        query = result.value.query.ifBlank { trimmed },
+                        groups = groups,
+                        total = result.value.total,
+                        emojis = resolveEmojiUrls(groups),
+                    ),
+                )
+            }
 
             is AuthResult.Failure -> result
         }
+    }
+
+    private suspend fun enrichUsers(groups: List<SearchGroup>): List<SearchGroup> = coroutineScope {
+        var budget = ProfileEnrichLimit
+        groups.map { group ->
+            if (group.category != SearchCategory.Users) return@map group
+
+            val deferred = group.results.map { result ->
+                if (result is SearchResult.User && budget > 0) {
+                    budget -= 1
+                    async { enrichUser(result) }
+                } else {
+                    null
+                }
+            }
+
+            group.copy(
+                results = deferred.mapIndexed { index, job ->
+                    job?.await() ?: group.results[index]
+                },
+            )
+        }
+    }
+
+    private suspend fun enrichUser(result: SearchResult): SearchResult {
+        val user = result as? SearchResult.User ?: return result
+        if (user.username.isBlank()) return user
+        if (user.nameColor.isNotBlank() || user.nameAnimation.isNotBlank()) return user
+
+        return when (val response = client.execute { api.getUser(user.username) }) {
+            is AuthResult.Success -> response.value.user?.let { profile ->
+                user.copy(
+                    bio = profile.bio.ifBlank { user.bio },
+                    nameColor = profile.nameColor,
+                    nameAnimation = profile.nameAnimation,
+                    isSubscribed = profile.isSubscribed,
+                )
+            } ?: user
+
+            is AuthResult.Failure -> user
+        }
+    }
+
+    private suspend fun resolveEmojiUrls(groups: List<SearchGroup>): Map<String, String> = coroutineScope {
+        val names = groups.asSequence()
+            .flatMap { it.results.asSequence() }
+            .filterIsInstance<SearchResult.User>()
+            .flatMap { user ->
+                EmojiMarker.findAll(user.bio).map { match -> match.groupValues[2].lowercase() }.asSequence()
+            }
+            .distinct()
+            .filter { it !in emojiCache }
+            .take(EmojiLookupLimit)
+            .toList()
+
+        names.map { name ->
+            async {
+                when (val response = client.execute { api.getEmojiByName(name) }) {
+                    is AuthResult.Success -> response.value.emoji?.url
+                        ?.takeIf { it.isNotBlank() }
+                        ?.let { emojiCache[name] = it }
+
+                    is AuthResult.Failure -> Unit
+                }
+            }
+        }.awaitAll()
+
+        emojiCache.toMap()
+    }
+
+    private companion object {
+        const val ProfileEnrichLimit = 8
+        const val EmojiLookupLimit = 24
+
+        val EmojiMarker = Regex("(^|\\s):([a-zA-Z0-9_]{1,32}):(?=\$|\\s|[.,!?])")
     }
 }
 
@@ -62,6 +146,9 @@ private fun SearchItemDto.toResult(groupCategory: SearchCategory): SearchResult?
             username = username.ifBlank { title },
             avatarPath = avatar.orEmpty(),
             bio = bio,
+            nameColor = nameColor.orEmpty(),
+            nameAnimation = nameAnimation.orEmpty(),
+            isSubscribed = isSubscribed,
         )
     }
 }

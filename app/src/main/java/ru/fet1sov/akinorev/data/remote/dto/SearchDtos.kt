@@ -20,6 +20,9 @@ data class SearchItemDto(
     val website: String? = null,
     val username: String = "",
     val bio: String = "",
+    @SerialName("name_color") val nameColor: String? = null,
+    @SerialName("name_animation") val nameAnimation: String? = null,
+    @SerialName("is_subscribed") val isSubscribed: Boolean = false,
     @SerialName("_score") val score: Int = 0,
     @SerialName("_category") val category: String = "",
 )

@@ -28,14 +28,15 @@ fun genreLabelRes(slug: String): Int? = when (slug.lowercase()) {
 }
 
 fun genreIconKind(slug: String): AppIconKind = when (slug.lowercase()) {
-    "shooter" -> AppIconKind.Crosshair
-    "sandbox" -> AppIconKind.Community
+    "shooter" -> AppIconKind.Cross
+    "sandbox" -> AppIconKind.People
     "roleplay" -> AppIconKind.Messages
     "arcade" -> AppIconKind.Joystick
     "racing" -> AppIconKind.ArrowRight
     "horror" -> AppIconKind.Eye
-    "action" -> AppIconKind.Crosshair
-    "fighting" -> AppIconKind.Crosshair
+    "rpg" -> AppIconKind.Games
+    "action" -> AppIconKind.Cross
+    "fighting" -> AppIconKind.Cross
     "sports" -> AppIconKind.ArrowRight
     else -> AppIconKind.Games
 }

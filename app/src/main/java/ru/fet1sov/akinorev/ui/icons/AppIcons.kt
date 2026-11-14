@@ -41,6 +41,8 @@ enum class AppIconKind {
     Users,
     CloudOff,
     Refresh,
+    Search,
+    Close,
 }
 
 @Composable
@@ -93,6 +95,8 @@ private fun AppIconKind.toVector(): ImageVector? = when (this) {
     AppIconKind.Users -> AppIcons.Users
     AppIconKind.CloudOff -> AppIcons.CloudOff
     AppIconKind.Refresh -> AppIcons.Refresh
+    AppIconKind.Search -> AppIcons.Search
+    AppIconKind.Close -> AppIcons.Close
     AppIconKind.Home,
     AppIconKind.Logotype,
     -> null
@@ -319,6 +323,21 @@ object AppIcons {
             viewport = 24f,
             VectorShape("M20 12a8 8 0 1 1-2.34-5.66", strokeWidth = 2f),
             VectorShape("M20 4v5h-5", strokeWidth = 2f),
+        )
+    }
+
+    val Search: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13", strokeWidth = 2f),
+            VectorShape("M15.4 15.4L21 21", strokeWidth = 2f),
+        )
+    }
+
+    val Close: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M5 5l14 14M19 5L5 19", strokeWidth = 2f),
         )
     }
 }

@@ -198,7 +198,6 @@
     <string name="home_empty">No games found</string>
     <string name="home_empty_hint">Try another query or pick a different genre</string>
     <string name="home_retry">Retry</string>
-    <string name="home_games_count">Games: %1$d</string>
 
     <string name="play_title">Game</string>
     <string name="play_players_count">%1$d playing now</string>
@@ -224,5 +223,6 @@
     <string name="play_released">Released</string>
     <string name="play_other_games">More games</string>
 </resources>
+
 
 

@@ -35,6 +35,7 @@ data class HomeUiState(
     val genres: List<String> = FallbackGenres,
     val query: String = "",
     val selectedGenre: String = "",
+    val isSearchOpen: Boolean = false,
 ) {
     val isFilteredEmpty: Boolean
         get() = !isLoading && !isUnavailable && games.isEmpty()
@@ -63,6 +64,16 @@ class HomeViewModel(
 
     fun onQueryChange(query: String) {
         mutableUiState.update { it.copy(query = query) }
+        applyFilters()
+    }
+
+    fun openSearch() {
+        mutableUiState.update { it.copy(isSearchOpen = true, selectedGenre = "") }
+        applyFilters()
+    }
+
+    fun closeSearch() {
+        mutableUiState.update { it.copy(isSearchOpen = false, query = "") }
         applyFilters()
     }
 

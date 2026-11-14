@@ -160,4 +160,65 @@ class HomeViewModelTest {
         assertEquals("", viewModel.uiState.value.query)
         assertEquals("", viewModel.uiState.value.selectedGenre)
     }
+
+    @Test
+    fun openSearch_clearsGenreAndShowsAllGames() = runTest(mainDispatcher) {
+        api.onGetGames = { _, _, _, _ ->
+            ApiFixtures.success(
+                ApiFixtures.catalogPayload(
+                    games = listOf(
+                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner", genreSlug = "arcade"),
+                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon", genreSlug = "rpg"),
+                    ),
+                ),
+            )
+        }
+        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
+
+        val viewModel = viewModel()
+        advanceUntilIdle()
+
+        viewModel.toggleGenre("rpg")
+        advanceUntilIdle()
+        assertEquals(1, viewModel.uiState.value.games.size)
+
+        viewModel.openSearch()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isSearchOpen)
+        assertEquals("", state.selectedGenre)
+        assertEquals(2, state.games.size)
+    }
+
+    @Test
+    fun closeSearch_resetsQueryAndReturnsToCatalog() = runTest(mainDispatcher) {
+        api.onGetGames = { _, _, _, _ ->
+            ApiFixtures.success(
+                ApiFixtures.catalogPayload(
+                    games = listOf(
+                        ApiFixtures.catalogGame(id = "game-1", title = "Neon Runner"),
+                        ApiFixtures.catalogGame(id = "game-2", title = "Dungeon"),
+                    ),
+                ),
+            )
+        }
+        api.onGetGenres = { ApiFixtures.success(ApiFixtures.catalogGenres()) }
+
+        val viewModel = viewModel()
+        advanceUntilIdle()
+
+        viewModel.openSearch()
+        viewModel.onQueryChange("neon")
+        advanceUntilIdle()
+        assertEquals(1, viewModel.uiState.value.games.size)
+
+        viewModel.closeSearch()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isSearchOpen)
+        assertEquals("", state.query)
+        assertEquals(2, state.games.size)
+    }
 }

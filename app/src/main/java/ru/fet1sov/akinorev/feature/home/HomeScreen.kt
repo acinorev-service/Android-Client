@@ -1,5 +1,13 @@
 package ru.fet1sov.akinorev.feature.home
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -30,14 +39,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,19 +78,78 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) { viewModel.refresh() }
 
+    AnimatedContent(
+        targetState = uiState.isSearchOpen,
+        modifier = modifier.fillMaxSize(),
+        transitionSpec = {
+            if (targetState) {
+                (
+                    slideInHorizontally(tween(SearchAnimationMillis)) { it / 4 } +
+                        fadeIn(tween(SearchAnimationMillis))
+                    ) togetherWith fadeOut(tween(SearchAnimationMillis / 2))
+            } else {
+                fadeIn(tween(SearchAnimationMillis)) togetherWith (
+                    slideOutHorizontally(tween(SearchAnimationMillis)) { it / 4 } +
+                        fadeOut(tween(SearchAnimationMillis))
+                    )
+            }
+        },
+        label = "home-search",
+    ) { searchOpen ->
+        if (searchOpen) {
+            SearchPane(
+                uiState = uiState,
+                palette = palette,
+                onQueryChange = viewModel::onQueryChange,
+                onClose = viewModel::closeSearch,
+                onRetry = viewModel::retry,
+                onPlay = onPlay,
+            )
+        } else {
+            CatalogPane(
+                uiState = uiState,
+                palette = palette,
+                onOpenSearch = viewModel::openSearch,
+                onGenreClick = viewModel::toggleGenre,
+                onRetry = viewModel::retry,
+                onClearFilters = viewModel::clearFilters,
+                onPlay = onPlay,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CatalogPane(
+    uiState: HomeUiState,
+    palette: NavigationPalette,
+    onOpenSearch: () -> Unit,
+    onGenreClick: (String) -> Unit,
+    onRetry: () -> Unit,
+    onClearFilters: () -> Unit,
+    onPlay: (String, String) -> Unit,
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 16.dp, bottom = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item(key = HeaderKey, span = { GridItemSpan(maxLineSpan) }) {
-            CatalogHeader(
-                uiState = uiState,
-                palette = palette,
-                onQueryChange = viewModel::onQueryChange,
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = stringResource(R.string.home_title),
+                    color = palette.textPrimary,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Black,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                SearchEntry(
+                    palette = palette,
+                    onClick = onOpenSearch,
+                )
+            }
         }
 
         item(key = GenresKey, span = { GridItemSpan(maxLineSpan) }) {
@@ -85,7 +157,7 @@ fun HomeScreen(
                 genres = uiState.genres,
                 selectedGenre = uiState.selectedGenre,
                 palette = palette,
-                onGenreClick = viewModel::toggleGenre,
+                onGenreClick = onGenreClick,
             )
         }
 
@@ -99,7 +171,7 @@ fun HomeScreen(
                     title = stringResource(R.string.home_unavailable),
                     palette = palette,
                     action = stringResource(R.string.home_retry),
-                    onAction = viewModel::retry,
+                    onAction = onRetry,
                 )
             }
 
@@ -109,7 +181,7 @@ fun HomeScreen(
                     hint = stringResource(R.string.home_empty_hint),
                     palette = palette,
                     action = stringResource(R.string.home_retry),
-                    onAction = viewModel::clearFilters,
+                    onAction = onClearFilters,
                 )
             }
 
@@ -125,68 +197,253 @@ fun HomeScreen(
 }
 
 @Composable
-private fun CatalogHeader(
+private fun SearchPane(
     uiState: HomeUiState,
     palette: NavigationPalette,
     onQueryChange: (String) -> Unit,
+    onClose: () -> Unit,
+    onRetry: () -> Unit,
+    onPlay: (String, String) -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    BackHandler(onBack = onClose)
+
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+
+    Column(modifier = Modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 6.dp, end = 14.dp, top = 8.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = stringResource(R.string.home_title),
-                color = palette.textPrimary,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Black,
+            SearchIconButton(
+                icon = AppIconKind.ArrowLeft,
+                palette = palette,
+                onClick = onClose,
             )
-            Spacer(modifier = Modifier.width(10.dp))
-            if (!uiState.isLoading && !uiState.isUnavailable) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = palette.barBorder.copy(alpha = 0.45f),
-                ) {
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            OutlinedTextField(
+                value = uiState.query,
+                onValueChange = onQueryChange,
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(focusRequester),
+                placeholder = {
                     Text(
-                        text = stringResource(R.string.home_games_count, uiState.games.size),
-                        color = palette.textPrimary,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        text = stringResource(R.string.home_search_placeholder),
+                        color = palette.textMuted,
+                        fontSize = 14.sp,
+                    )
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        focusManager.clearFocus()
+                        keyboard?.hide()
+                    },
+                ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = palette.textMuted,
+                    unfocusedBorderColor = palette.barBorder,
+                    focusedContainerColor = palette.bar,
+                    unfocusedContainerColor = palette.bar,
+                    cursorColor = palette.textPrimary,
+                    focusedTextColor = palette.textPrimary,
+                    unfocusedTextColor = palette.textPrimary,
+                ),
+            )
+
+            if (uiState.query.isNotEmpty()) {
+                SearchIconButton(
+                    icon = AppIconKind.Close,
+                    palette = palette,
+                    onClick = { onQueryChange("") },
+                )
+            }
+        }
+
+        when {
+            uiState.isLoading -> Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                repeat(SkeletonCards) {
+                    SkeletonBlock(height = 64.dp, shape = RoundedCornerShape(12.dp))
+                }
+            }
+
+            uiState.isUnavailable -> CatalogMessage(
+                title = stringResource(R.string.home_unavailable),
+                palette = palette,
+                action = stringResource(R.string.home_retry),
+                onAction = onRetry,
+            )
+
+            uiState.games.isEmpty() -> CatalogMessage(
+                title = stringResource(R.string.home_empty),
+                hint = stringResource(R.string.home_empty_hint),
+                palette = palette,
+                action = null,
+                onAction = null,
+            )
+
+            else -> LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 6.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(uiState.games, key = { it.id }) { game ->
+                    SearchResultRow(
+                        game = game,
+                        palette = palette,
+                        onClick = {
+                            keyboard?.hide()
+                            onPlay(game.id, game.title)
+                        },
                     )
                 }
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(10.dp))
+@Composable
+private fun SearchEntry(
+    palette: NavigationPalette,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = palette.bar,
+        border = BorderStroke(1.dp, palette.barBorder.copy(alpha = 0.6f)),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AppIcon(
+                kind = AppIconKind.Search,
+                tint = palette.textMuted,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = stringResource(R.string.home_search_placeholder),
+                color = palette.textMuted,
+                fontSize = 14.sp,
+            )
+        }
+    }
+}
 
-        OutlinedTextField(
-            value = uiState.query,
-            onValueChange = onQueryChange,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = {
-                Text(
-                    text = stringResource(R.string.home_search_placeholder),
-                    color = palette.textMuted,
-                    fontSize = 14.sp,
+@Composable
+private fun SearchIconButton(
+    icon: AppIconKind,
+    palette: NavigationPalette,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        color = androidx.compose.ui.graphics.Color.Transparent,
+    ) {
+        Box(
+            modifier = Modifier.size(40.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            AppIcon(
+                kind = icon,
+                tint = palette.textPrimary,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchResultRow(
+    game: GameCardUi,
+    palette: NavigationPalette,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+        color = palette.bar,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (game.iconPath.isNotBlank()) {
+                RemoteImage(
+                    url = resolveMediaUrl(game.iconPath),
+                    contentDescription = game.title,
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(10.dp),
                 )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = palette.textMuted,
-                unfocusedBorderColor = palette.barBorder,
-                focusedContainerColor = palette.bar,
-                unfocusedContainerColor = palette.bar,
-                cursorColor = palette.textPrimary,
-                focusedTextColor = palette.textPrimary,
-                unfocusedTextColor = palette.textPrimary,
-            ),
-        )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(palette.barBorder.copy(alpha = 0.35f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AppIcon(
+                        kind = AppIconKind.Games,
+                        tint = palette.textMuted,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = game.title.uppercase(),
+                    color = palette.textPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = genreLabelRes(game.genreSlug)?.let { stringResource(it) }?.uppercase().orEmpty(),
+                    color = palette.textMuted,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                )
+            }
+
+            Surface(
+                onClick = onClick,
+                shape = RoundedCornerShape(9.dp),
+                color = palette.idleContent,
+            ) {
+                Text(
+                    text = stringResource(R.string.game_play),
+                    color = palette.bar,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                )
+            }
+        }
     }
 }
 
@@ -334,7 +591,7 @@ private fun GameCard(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.padding(vertical = 8.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -387,8 +644,8 @@ private fun GameCardSkeleton(palette: NavigationPalette) {
 private fun CatalogMessage(
     title: String,
     palette: NavigationPalette,
-    action: String,
-    onAction: () -> Unit,
+    action: String?,
+    onAction: (() -> Unit)?,
     hint: String? = null,
 ) {
     Column(
@@ -416,23 +673,26 @@ private fun CatalogMessage(
                 fontSize = 13.sp,
             )
         }
-        Surface(
-            onClick = onAction,
-            shape = RoundedCornerShape(10.dp),
-            color = palette.idleContent,
-        ) {
-            Text(
-                text = action,
-                color = palette.bar,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp),
-            )
+        if (action != null && onAction != null) {
+            Surface(
+                onClick = onAction,
+                shape = RoundedCornerShape(10.dp),
+                color = palette.idleContent,
+            ) {
+                Text(
+                    text = action,
+                    color = palette.bar,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp),
+                )
+            }
         }
     }
 }
 
 private const val SkeletonCards = 4
+private const val SearchAnimationMillis = 260
 private const val HeaderKey = "home-header"
 private const val GenresKey = "home-genres"
 private const val ErrorKey = "home-error"

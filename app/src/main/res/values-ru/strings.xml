@@ -198,7 +198,6 @@
     <string name="home_empty">Игры не найдены</string>
     <string name="home_empty_hint">Попробуйте изменить запрос или выбрать другой жанр</string>
     <string name="home_retry">Повторить</string>
-    <string name="home_games_count">Игр: %1$d</string>
 
     <string name="play_title">Игра</string>
     <string name="play_players_count">Сейчас играют: %1$d</string>
@@ -224,5 +223,6 @@
     <string name="play_released">Выпущена</string>
     <string name="play_other_games">Другие игры</string>
 </resources>
+
 
 

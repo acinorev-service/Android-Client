@@ -50,8 +50,8 @@ import ru.fet1sov.akinorev.R
 import ru.fet1sov.akinorev.model.CatalogGame
 import ru.fet1sov.akinorev.ui.components.RemoteImage
 import ru.fet1sov.akinorev.ui.components.resolveMediaUrl
+import ru.fet1sov.akinorev.ui.format.genreDisplayName
 import ru.fet1sov.akinorev.ui.format.genreIconKind
-import ru.fet1sov.akinorev.ui.format.genreLabelRes
 import ru.fet1sov.akinorev.ui.icons.AppIcon
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
 import ru.fet1sov.akinorev.ui.navigation.NavigationPalette
@@ -326,18 +326,21 @@ private fun PlayToolbar(
         Spacer(modifier = Modifier.height(6.dp))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AppIcon(
-                kind = genreIconKind(game.genreSlug),
-                tint = palette.textMuted,
-                modifier = Modifier.size(14.dp),
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                text = genreLabelRes(game.genreSlug)?.let { stringResource(it) }?.uppercase().orEmpty(),
-                color = palette.textMuted,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-            )
+            val genreName = genreDisplayName(game.genreSlug, game.genreTitle)
+            if (genreName.isNotBlank()) {
+                AppIcon(
+                    kind = genreIconKind(game.genreSlug),
+                    tint = palette.textMuted,
+                    modifier = Modifier.size(14.dp),
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    text = genreName.uppercase(),
+                    color = palette.textMuted,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
 
             if (game.developerName.isNotBlank()) {
                 Text(

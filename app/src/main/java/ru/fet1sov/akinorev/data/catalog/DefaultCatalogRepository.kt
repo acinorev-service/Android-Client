@@ -63,6 +63,8 @@ internal fun CatalogGameDto.toDomain(): CatalogGame? {
         bannerPath = banner.orEmpty(),
         iconPath = icon.orEmpty(),
         genreSlug = genre?.slug.orEmpty(),
+        genreTitle = genre?.name?.takeIf { it.isNotBlank() }
+            ?: genre?.title?.removePrefix("genres.").orEmpty(),
         developerId = developer?.id.orEmpty(),
         developerName = developer?.name.orEmpty(),
         developerAvatarPath = developer?.avatar.orEmpty(),

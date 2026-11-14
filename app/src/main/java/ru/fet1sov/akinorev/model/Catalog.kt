@@ -13,6 +13,7 @@ data class CatalogGame(
     val bannerPath: String,
     val iconPath: String,
     val genreSlug: String,
+    val genreTitle: String,
     val developerId: String,
     val developerName: String,
     val developerAvatarPath: String,

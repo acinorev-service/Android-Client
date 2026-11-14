@@ -24,6 +24,7 @@ data class GameCardUi(
     val bannerPath: String,
     val iconPath: String,
     val genreSlug: String,
+    val genreTitle: String,
     val authorUsername: String,
 )
 
@@ -160,6 +161,7 @@ internal fun CatalogGame.toCardUi(): GameCardUi = GameCardUi(
     bannerPath = bannerPath,
     iconPath = iconPath,
     genreSlug = genreSlug,
+    genreTitle = genreTitle,
     authorUsername = authorUsername,
 )
 

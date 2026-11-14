@@ -69,6 +69,7 @@ import ru.fet1sov.akinorev.ui.components.RemoteImage
 import ru.fet1sov.akinorev.ui.components.SkeletonBlock
 import ru.fet1sov.akinorev.ui.components.UserAvatar
 import ru.fet1sov.akinorev.ui.components.resolveMediaUrl
+import ru.fet1sov.akinorev.ui.format.genreDisplayName
 import ru.fet1sov.akinorev.ui.format.genreIconKind
 import ru.fet1sov.akinorev.ui.format.genreLabelRes
 import ru.fet1sov.akinorev.ui.icons.AppIcon
@@ -410,7 +411,7 @@ private fun SearchResultRow(
             GameResultArtwork(game = result, palette = palette)
             SearchRowText(
                 title = result.game.title,
-                subtitle = genreLabelRes(result.game.genreSlug)?.let { stringResource(it) }.orEmpty(),
+                subtitle = genreDisplayName(result.game.genreSlug, result.game.genreTitle),
                 palette = palette,
             )
             PlayBadge(palette = palette)
@@ -761,22 +762,25 @@ private fun GameCard(
 
             Spacer(modifier = Modifier.height(2.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                AppIcon(
-                    kind = genreIconKind(game.genreSlug),
-                    tint = palette.textMuted,
-                    modifier = Modifier.size(14.dp),
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text = genreLabelRes(game.genreSlug)?.let { stringResource(it) }
-                        ?.uppercase()
-                        ?: "",
-                    color = palette.textMuted,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            val genreName = genreDisplayName(game.genreSlug, game.genreTitle)
+            Box(modifier = Modifier.height(18.dp)) {
+                if (genreName.isNotBlank()) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        AppIcon(
+                            kind = genreIconKind(game.genreSlug),
+                            tint = palette.textMuted,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = genreName.uppercase(),
+                            color = palette.textMuted,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))

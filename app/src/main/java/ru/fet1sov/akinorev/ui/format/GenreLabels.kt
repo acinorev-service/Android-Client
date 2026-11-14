@@ -1,6 +1,8 @@
 package ru.fet1sov.akinorev.ui.format
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import ru.fet1sov.akinorev.R
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
 
@@ -40,3 +42,16 @@ fun genreIconKind(slug: String): AppIconKind = when (slug.lowercase()) {
     "sports" -> AppIconKind.ArrowRight
     else -> AppIconKind.Games
 }
+
+@Composable
+fun genreDisplayName(slug: String, title: String = ""): String {
+    val localized = genreLabelRes(slug)
+    return when {
+        localized != null -> stringResource(localized)
+        title.isNotBlank() -> title
+        slug.isNotBlank() -> slug.replaceFirstChar { it.uppercase() }
+        else -> ""
+    }
+}
+
+fun hasGenre(slug: String, title: String = ""): Boolean = slug.isNotBlank() || title.isNotBlank()

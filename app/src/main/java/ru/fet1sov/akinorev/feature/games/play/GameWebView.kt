@@ -118,12 +118,9 @@ private fun buildGameWebView(
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val target = request.url
-            val allowed = target.host == view.url?.let(Uri::parse)?.host ||
-                target.scheme == "about" ||
-                target.scheme == "blob" ||
-                target.scheme == "data"
-            if (allowed) return false
-
+            when (target.scheme?.lowercase()) {
+                "http", "https", "about", "blob", "data", "javascript" -> return false
+            }
             openExternally(context, target)
             return true
         }
@@ -212,8 +209,9 @@ private fun quoteJs(value: String): String = buildString {
 }
 
 private fun openExternally(context: Context, target: Uri) {
-    val scheme = target.scheme?.lowercase()
-    if (scheme != "http" && scheme != "https") return
+    when (target.scheme?.lowercase()) {
+        "http", "https", "about", "blob", "data", "javascript", null -> return
+    }
     runCatching {
         context.startActivity(Intent(Intent.ACTION_VIEW, target).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }

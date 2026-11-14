@@ -27,6 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import ru.fet1sov.akinorev.BuildConfig
 import java.io.ByteArrayInputStream
 
@@ -297,6 +300,17 @@ private class FullscreenHost(private val context: Context) {
 
         dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen).apply {
             setContentView(container)
+            window?.let { window ->
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                val controller = WindowCompat.getInsetsController(window, window.decorView)
+                controller.systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+                controller.isAppearanceLightStatusBars = false
+                controller.isAppearanceLightNavigationBars = false
+                @Suppress("DEPRECATION")
+                window.navigationBarColor = Color.TRANSPARENT
+            }
             setOnDismissListener {
                 (view.parent as? ViewGroup)?.removeView(view)
                 callback?.onCustomViewHidden()

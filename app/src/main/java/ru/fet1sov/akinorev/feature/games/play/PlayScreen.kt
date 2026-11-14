@@ -1,4 +1,4 @@
-package ru.fet1sov.akinorev.feature.games.play
+﻿package ru.fet1sov.akinorev.feature.games.play
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.fet1sov.akinorev.AcinorevApplication
 import ru.fet1sov.akinorev.R
 import ru.fet1sov.akinorev.model.CatalogGame
 import ru.fet1sov.akinorev.ui.components.RemoteImage
@@ -54,8 +56,8 @@ import ru.fet1sov.akinorev.ui.format.genreDisplayName
 import ru.fet1sov.akinorev.ui.format.genreIconKind
 import ru.fet1sov.akinorev.ui.icons.AppIcon
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
+import ru.fet1sov.akinorev.ui.navigation.DarkNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.NavigationPalette
-import ru.fet1sov.akinorev.ui.navigation.navigationPalette
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -71,8 +73,11 @@ fun PlayScreen(
     viewModel: PlayViewModel = viewModel(factory = PlayViewModel.factory(gameId, title)),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val palette = navigationPalette()
+    val palette = DarkNavigationPalette
     val context = LocalContext.current
+    val app = context.applicationContext as AcinorevApplication
+    val settings by app.container.appSettingsRepository.settings.collectAsStateWithLifecycle()
+    val appDarkTheme = settings.theme.isDark(isSystemInDarkTheme())
 
     var isPageLoading by remember { mutableStateOf(true) }
     var hasPageError by remember { mutableStateOf(false) }
@@ -81,7 +86,10 @@ fun PlayScreen(
 
     BackHandler(enabled = uiState.isFullscreen) { viewModel.exitFullscreen() }
 
-    FullscreenEffect(isFullscreen = uiState.isFullscreen)
+    PlayerSystemBarsEffect(
+        isFullscreen = uiState.isFullscreen,
+        appDarkTheme = appDarkTheme,
+    )
 
     Column(
         modifier = modifier
@@ -519,17 +527,25 @@ private fun InviteDialog(
 }
 
 @Composable
-private fun FullscreenEffect(isFullscreen: Boolean) {
+private fun PlayerSystemBarsEffect(isFullscreen: Boolean, appDarkTheme: Boolean) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
 
-    DisposableEffect(activity, isFullscreen) {
+    DisposableEffect(activity, isFullscreen, appDarkTheme) {
         val window = activity?.window
         if (window == null) return@DisposableEffect onDispose { }
 
         val controller = WindowCompat.getInsetsController(window, window.decorView)
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controller.isAppearanceLightStatusBars = false
+        controller.isAppearanceLightNavigationBars = false
+
+        @Suppress("DEPRECATION")
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        @Suppress("DEPRECATION")
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+
         if (isFullscreen) {
             controller.hide(WindowInsetsCompat.Type.systemBars())
         } else {
@@ -537,9 +553,9 @@ private fun FullscreenEffect(isFullscreen: Boolean) {
         }
 
         onDispose {
-            if (isFullscreen) {
-                controller.show(WindowInsetsCompat.Type.systemBars())
-            }
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.isAppearanceLightStatusBars = !appDarkTheme
+            controller.isAppearanceLightNavigationBars = !appDarkTheme
         }
     }
 }
@@ -571,3 +587,4 @@ private fun formatReleased(millis: Long): String {
         .toLocalDate()
         .format(formatter)
 }
+

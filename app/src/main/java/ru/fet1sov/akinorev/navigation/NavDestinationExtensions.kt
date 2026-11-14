@@ -22,7 +22,7 @@ fun NavDestination.toTopLevelDestination(): TopLevelDestination? = when {
     hasRoute<CreateDestination>() -> CreateDestination
     hasRoute<MenuDestination>() -> MenuDestination
     hasRoute<GamesDestination>() -> GamesDestination
-    hasRoute<PlayDestination>() -> GamesDestination
+    hasRoute<PlayDestination>() -> null
     hasRoute<NotificationsDestination>() -> MenuDestination
     hasRoute<CommunityDestination>() -> MenuDestination
     hasRoute<EmojisDestination>() -> MenuDestination

@@ -11,4 +11,6 @@ interface RealtimeSocket {
     fun connect()
 
     fun disconnect()
+
+    fun send(message: String): Boolean
 }

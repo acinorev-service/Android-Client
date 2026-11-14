@@ -53,8 +53,13 @@ class DefaultRealtimeSocket(
     )
     override val events: SharedFlow<RealtimeEvent> = mutableEvents.asSharedFlow()
 
+    @Volatile
     private var started = false
+
+    @Volatile
     private var webSocket: WebSocket? = null
+
+    @Volatile
     private var reconnectJob: Job? = null
     private var attempts = 0
 
@@ -84,6 +89,11 @@ class DefaultRealtimeSocket(
             mutableConnected.value = false
             socket?.close(NormalClosure, "client stopped")
         }
+    }
+
+    override fun send(message: String): Boolean {
+        val socket = webSocket ?: return false
+        return socket.send(message)
     }
 
     private suspend fun open() {

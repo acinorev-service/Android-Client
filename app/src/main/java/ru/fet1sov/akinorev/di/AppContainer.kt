@@ -6,6 +6,8 @@ import ru.fet1sov.akinorev.data.auth.AuthRepository
 import ru.fet1sov.akinorev.data.auth.DefaultAuthRepository
 import ru.fet1sov.akinorev.data.auth.EncryptedSessionStorage
 import ru.fet1sov.akinorev.data.auth.SessionManager
+import ru.fet1sov.akinorev.data.catalog.CatalogRepository
+import ru.fet1sov.akinorev.data.catalog.DefaultCatalogRepository
 import ru.fet1sov.akinorev.data.emojis.ContentResolverEmojiFileSource
 import ru.fet1sov.akinorev.data.emojis.DefaultEmojisRepository
 import ru.fet1sov.akinorev.data.emojis.EmojiFileSource
@@ -18,6 +20,8 @@ import ru.fet1sov.akinorev.data.notifications.DefaultNotificationPreferencesRepo
 import ru.fet1sov.akinorev.data.notifications.DefaultNotificationsRepository
 import ru.fet1sov.akinorev.data.notifications.NotificationPreferencesRepository
 import ru.fet1sov.akinorev.data.notifications.NotificationsRepository
+import ru.fet1sov.akinorev.data.play.DefaultPlaySessionRepository
+import ru.fet1sov.akinorev.data.play.PlaySessionRepository
 import ru.fet1sov.akinorev.data.push.DefaultPushDeviceRepository
 import ru.fet1sov.akinorev.data.push.FirebasePushTokenSource
 import ru.fet1sov.akinorev.data.push.PushRegistrar
@@ -38,6 +42,8 @@ interface AppContainer {
     val emojisRepository: EmojisRepository
     val emojiFileSource: EmojiFileSource
     val libraryRepository: LibraryRepository
+    val catalogRepository: CatalogRepository
+    val playSessionRepository: PlaySessionRepository
     val appSettingsRepository: AppSettingsRepository
     val realtimeSocket: RealtimeSocket
     val pushRegistrar: PushRegistrar
@@ -109,6 +115,21 @@ class DefaultAppContainer(
 
     override val libraryRepository: LibraryRepository by lazy {
         DefaultLibraryRepository(
+            api = networkModule.api,
+            client = apiClient,
+        )
+    }
+
+    override val catalogRepository: CatalogRepository by lazy {
+        DefaultCatalogRepository(
+            api = networkModule.api,
+            client = apiClient,
+        )
+    }
+
+    override val playSessionRepository: PlaySessionRepository by lazy {
+        DefaultPlaySessionRepository(
+            socket = realtimeSocket,
             api = networkModule.api,
             client = apiClient,
         )

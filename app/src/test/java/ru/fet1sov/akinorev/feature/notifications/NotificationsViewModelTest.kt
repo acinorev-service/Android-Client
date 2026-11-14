@@ -267,5 +267,7 @@ class NotificationsViewModelTest {
         override fun connect() = Unit
 
         override fun disconnect() = Unit
+
+        override fun send(message: String): Boolean = false
     }
 }

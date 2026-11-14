@@ -106,8 +106,6 @@ fun PlayScreen(
                 .background(Color.Black),
         ) {
             when {
-                uiState.isLoading -> PlayLoading(palette = palette)
-
                 uiState.isUnavailable -> PlayUnavailable(
                     title = stringResource(R.string.play_not_found),
                     hint = stringResource(R.string.play_not_found_description),
@@ -115,6 +113,8 @@ fun PlayScreen(
                     action = stringResource(R.string.play_retry),
                     onAction = viewModel::retry,
                 )
+
+                uiState.isLoading || uiState.gameUrl.isBlank() -> PlayLoading(palette = palette)
 
                 uiState.game?.supportsMobile == false -> PlayUnavailable(
                     title = stringResource(R.string.play_unavailable_mobile),

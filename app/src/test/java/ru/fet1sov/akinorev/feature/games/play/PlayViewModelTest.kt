@@ -1,4 +1,4 @@
-package ru.fet1sov.akinorev.feature.games.play
+﻿package ru.fet1sov.akinorev.feature.games.play
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -18,6 +18,7 @@ import ru.fet1sov.akinorev.data.remote.ApiClient
 import ru.fet1sov.akinorev.data.remote.dto.CatalogGamePayloadDto
 import ru.fet1sov.akinorev.testing.ApiFixtures
 import ru.fet1sov.akinorev.testing.FakeAcinorevApi
+import ru.fet1sov.akinorev.testing.FakeGameUrlResolver
 import ru.fet1sov.akinorev.testing.FakePlaySessionRepository
 import ru.fet1sov.akinorev.testing.InMemorySessionStorage
 
@@ -30,6 +31,7 @@ class PlayViewModelTest {
     private val client = ApiClient(api, sessionManager)
     private val catalogRepository = DefaultCatalogRepository(api, client)
     private val playSessionRepository = FakePlaySessionRepository()
+    private val gameUrlResolver = FakeGameUrlResolver()
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule(mainDispatcher)
@@ -40,6 +42,7 @@ class PlayViewModelTest {
         catalogRepository = catalogRepository,
         playSessionRepository = playSessionRepository,
         authRepository = authRepository,
+        gameUrlResolver = gameUrlResolver,
     )
 
     @Test
@@ -127,3 +130,4 @@ class PlayViewModelTest {
         assertFalse(viewModel.uiState.value.isFullscreen)
     }
 }
+

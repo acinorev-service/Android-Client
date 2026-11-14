@@ -20,7 +20,9 @@ import ru.fet1sov.akinorev.data.notifications.DefaultNotificationPreferencesRepo
 import ru.fet1sov.akinorev.data.notifications.DefaultNotificationsRepository
 import ru.fet1sov.akinorev.data.notifications.NotificationPreferencesRepository
 import ru.fet1sov.akinorev.data.notifications.NotificationsRepository
+import ru.fet1sov.akinorev.data.play.DefaultGameUrlResolver
 import ru.fet1sov.akinorev.data.play.DefaultPlaySessionRepository
+import ru.fet1sov.akinorev.data.play.GameUrlResolver
 import ru.fet1sov.akinorev.data.play.PlaySessionRepository
 import ru.fet1sov.akinorev.data.push.DefaultPushDeviceRepository
 import ru.fet1sov.akinorev.data.push.FirebasePushTokenSource
@@ -46,6 +48,7 @@ interface AppContainer {
     val libraryRepository: LibraryRepository
     val catalogRepository: CatalogRepository
     val playSessionRepository: PlaySessionRepository
+    val gameUrlResolver: GameUrlResolver
     val searchRepository: SearchRepository
     val appSettingsRepository: AppSettingsRepository
     val realtimeSocket: RealtimeSocket
@@ -136,6 +139,10 @@ class DefaultAppContainer(
             api = networkModule.api,
             client = apiClient,
         )
+    }
+
+    override val gameUrlResolver: GameUrlResolver by lazy {
+        DefaultGameUrlResolver(client = networkModule.httpClient)
     }
 
     override val searchRepository: SearchRepository by lazy {

@@ -28,6 +28,11 @@ class NetworkModule(
         .callTimeout(45, TimeUnit.SECONDS)
         .build()
 
+    val httpClient: OkHttpClient = client.newBuilder()
+        .followRedirects(false)
+        .followSslRedirects(false)
+        .build()
+
     val api: AcinorevApi = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(client)

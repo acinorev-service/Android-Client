@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -114,8 +115,13 @@ private fun buildGameWebView(
     }
 
     webViewClient = object : WebViewClient() {
-        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
-            bootRedirectResponse(request.url) ?: super.shouldInterceptRequest(view, request)
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? {
+            val response = bootRedirectResponse(request.url)
+            if (response != null) {
+                Log.d(LogTag, "boot intercepted: ${request.url}")
+            }
+            return response ?: super.shouldInterceptRequest(view, request)
+        }
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             val target = request.url
@@ -127,12 +133,18 @@ private fun buildGameWebView(
         }
 
         override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) {
-            if (url != AboutBlank) callbacks().onPageStarted()
+            if (url != AboutBlank) {
+                Log.d(LogTag, "page started: $url")
+                callbacks().onPageStarted()
+            }
             super.onPageStarted(view, url, favicon)
         }
 
         override fun onPageFinished(view: WebView, url: String) {
-            if (url != AboutBlank) callbacks().onPageFinished()
+            if (url != AboutBlank) {
+                Log.d(LogTag, "page finished: $url")
+                callbacks().onPageFinished()
+            }
             super.onPageFinished(view, url)
         }
 
@@ -141,7 +153,10 @@ private fun buildGameWebView(
             request: WebResourceRequest,
             error: android.webkit.WebResourceError,
         ) {
-            if (request.isForMainFrame) callbacks().onError()
+            if (request.isForMainFrame) {
+                Log.e(LogTag, "main frame error ${error.errorCode} ${error.description}: ${request.url}")
+                callbacks().onError()
+            }
             super.onReceivedError(view, request, error)
         }
 
@@ -151,6 +166,7 @@ private fun buildGameWebView(
             errorResponse: android.webkit.WebResourceResponse,
         ) {
             if (request.isForMainFrame && errorResponse.statusCode >= 400) {
+                Log.e(LogTag, "main frame http ${errorResponse.statusCode}: ${request.url}")
                 callbacks().onError()
             }
             super.onReceivedHttpError(view, request, errorResponse)
@@ -299,4 +315,5 @@ private class FullscreenHost(private val context: Context) {
 
 private const val AboutBlank = "about:blank"
 private const val BootSuffix = "/__acinorev/boot.html"
+private const val LogTag = "GameWebView"
 private const val DefaultCdnPort = 8090

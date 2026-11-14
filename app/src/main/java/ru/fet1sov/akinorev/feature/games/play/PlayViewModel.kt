@@ -17,6 +17,7 @@ import ru.fet1sov.akinorev.BuildConfig
 import ru.fet1sov.akinorev.data.auth.AuthRepository
 import ru.fet1sov.akinorev.data.auth.SessionState
 import ru.fet1sov.akinorev.data.catalog.CatalogRepository
+import ru.fet1sov.akinorev.data.play.GameUrlResolver
 import ru.fet1sov.akinorev.data.play.PlaySessionRepository
 import ru.fet1sov.akinorev.data.remote.AuthResult
 import ru.fet1sov.akinorev.model.CatalogGame
@@ -46,12 +47,13 @@ class PlayViewModel(
     private val catalogRepository: CatalogRepository,
     private val playSessionRepository: PlaySessionRepository,
     private val authRepository: AuthRepository,
+    private val gameUrlResolver: GameUrlResolver,
 ) : ViewModel() {
     private val mutableUiState = MutableStateFlow(
         PlayUiState(
             gameId = gameId,
             fallbackTitle = fallbackTitle,
-            gameUrl = buildGameUrl(gameId, room = null),
+            gameUrl = "",
         ),
     )
     val uiState: StateFlow<PlayUiState> = mutableUiState.asStateFlow()
@@ -84,9 +86,12 @@ class PlayViewModel(
         mutableUiState.update {
             it.copy(
                 roomCode = room,
-                gameUrl = buildGameUrl(gameId, room),
                 inviteLink = buildInviteLink(gameId, room),
             )
+        }
+        viewModelScope.launch {
+            val url = gameUrlResolver.resolve(gameId, room)
+            mutableUiState.update { it.copy(gameUrl = url) }
         }
         return room
     }
@@ -97,9 +102,12 @@ class PlayViewModel(
 
             when (val result = catalogRepository.fetchGame(gameId)) {
                 is AuthResult.Success -> {
+                    val room = mutableUiState.value.roomCode.takeIf { it.isNotEmpty() }
+                    val url = gameUrlResolver.resolve(gameId, room)
                     mutableUiState.update {
                         it.copy(
                             game = result.value,
+                            gameUrl = url,
                             isLoading = false,
                             isUnavailable = false,
                         )
@@ -178,6 +186,7 @@ class PlayViewModel(
                     catalogRepository = application.container.catalogRepository,
                     playSessionRepository = application.container.playSessionRepository,
                     authRepository = application.container.authRepository,
+                    gameUrlResolver = application.container.gameUrlResolver,
                 )
             }
         }

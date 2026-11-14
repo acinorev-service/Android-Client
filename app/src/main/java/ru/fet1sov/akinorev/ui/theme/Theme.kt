@@ -6,10 +6,15 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ru.fet1sov.akinorev.data.settings.AppSettingsRepository
+import ru.fet1sov.akinorev.model.AppTheme
 import ru.fet1sov.akinorev.ui.navigation.DarkNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.LightNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.LocalNavigationPalette
+import ru.fet1sov.akinorev.ui.system.LocalUiAnimationsEnabled
 
 private val LightColorScheme = lightColorScheme(
     primary = LightPrimaryPrimary,
@@ -61,17 +66,36 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun AkinorevTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: AppTheme = AppTheme.System,
+    animationsEnabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val darkTheme = theme.isDark(isSystemInDarkTheme())
     val palette = if (darkTheme) DarkNavigationPalette else LightNavigationPalette
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
-    CompositionLocalProvider(LocalNavigationPalette provides palette) {
+    CompositionLocalProvider(
+        LocalNavigationPalette provides palette,
+        LocalUiAnimationsEnabled provides animationsEnabled,
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
             content = content,
         )
     }
+}
+
+@Composable
+fun AcinorevAppTheme(
+    settingsRepository: AppSettingsRepository,
+    content: @Composable () -> Unit,
+) {
+    val settings by settingsRepository.settings.collectAsStateWithLifecycle()
+
+    AkinorevTheme(
+        theme = settings.theme,
+        animationsEnabled = settings.animationsEnabled,
+        content = content,
+    )
 }

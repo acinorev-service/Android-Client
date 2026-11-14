@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
+import ru.fet1sov.akinorev.BuildConfig
 import java.io.ByteArrayInputStream
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -143,6 +144,17 @@ private fun buildGameWebView(
             if (request.isForMainFrame) callbacks().onError()
             super.onReceivedError(view, request, error)
         }
+
+        override fun onReceivedHttpError(
+            view: WebView,
+            request: WebResourceRequest,
+            errorResponse: android.webkit.WebResourceResponse,
+        ) {
+            if (request.isForMainFrame && errorResponse.statusCode >= 400) {
+                callbacks().onError()
+            }
+            super.onReceivedHttpError(view, request, errorResponse)
+        }
     }
 
     webChromeClient = object : WebChromeClient() {
@@ -169,9 +181,7 @@ private fun bootRedirectResponse(url: Uri): WebResourceResponse? {
     if (gameId.isBlank()) return null
 
     val redirect = StringBuilder()
-        .append(url.scheme)
-        .append("://")
-        .append(url.host)
+        .append(resolveGameOrigin(url))
         .append(path.removeSuffix(BootSuffix))
         .append("/index.html?mt_game=")
         .append(Uri.encode(gameId))
@@ -193,6 +203,40 @@ private fun bootRedirectResponse(url: Uri): WebResourceResponse? {
         "UTF-8",
         ByteArrayInputStream(html.toByteArray(Charsets.UTF_8)),
     )
+}
+
+private fun resolveGameOrigin(url: Uri): String {
+    val host = url.host.orEmpty()
+    if (host.isNotBlank() && !isLoopbackHost(host)) {
+        return buildOrigin(url.scheme, host, url.port)
+    }
+
+    val cdn = runCatching { Uri.parse(BuildConfig.CDN_BASE_URL) }.getOrNull()
+    val cdnHost = cdn?.host
+    val fallbackHost = when {
+        !cdnHost.isNullOrBlank() && !isLoopbackHost(cdnHost) -> cdnHost
+        else -> runCatching { Uri.parse(BuildConfig.API_BASE_URL).host }.getOrNull() ?: host
+    }
+    val fallbackPort = cdn?.port?.takeIf { it > 0 }
+        ?: url.port.takeIf { it > 0 }
+        ?: DefaultCdnPort
+    val scheme = cdn?.scheme?.takeIf { it.isNotBlank() } ?: url.scheme ?: "http"
+
+    return buildOrigin(scheme, fallbackHost, fallbackPort)
+}
+
+private fun buildOrigin(scheme: String?, host: String, port: Int): String {
+    val resolvedScheme = scheme?.takeIf { it.isNotBlank() } ?: "http"
+    val portPart = if (port > 0) ":$port" else ""
+    return "$resolvedScheme://$host$portPart"
+}
+
+private fun isLoopbackHost(host: String): Boolean {
+    val normalized = host.lowercase().removePrefix("[").removeSuffix("]")
+    return normalized == "localhost" ||
+        normalized == "127.0.0.1" ||
+        normalized == "0.0.0.0" ||
+        normalized == "::1"
 }
 
 private fun quoteJs(value: String): String = buildString {
@@ -255,3 +299,4 @@ private class FullscreenHost(private val context: Context) {
 
 private const val AboutBlank = "about:blank"
 private const val BootSuffix = "/__acinorev/boot.html"
+private const val DefaultCdnPort = 8090

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit
 
 class NetworkModule(
     baseUrl: String,
+    cdnBaseUrl: String,
     sessionManager: SessionManager,
 ) {
     private val contentType = "application/json; charset=utf-8".toMediaType()
@@ -33,6 +34,13 @@ class NetworkModule(
         .addConverterFactory(AcinorevJson.instance.asConverterFactory(contentType))
         .build()
         .create(AcinorevApi::class.java)
+
+    val cdnApi: CdnApi = Retrofit.Builder()
+        .baseUrl(cdnBaseUrl.trimEnd('/') + "/")
+        .client(client)
+        .addConverterFactory(AcinorevJson.instance.asConverterFactory(contentType))
+        .build()
+        .create(CdnApi::class.java)
 
     private fun loggingInterceptor() = HttpLoggingInterceptor().apply {
         redactHeader("Authorization")

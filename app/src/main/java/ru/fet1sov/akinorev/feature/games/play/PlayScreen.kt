@@ -57,6 +57,7 @@ import ru.fet1sov.akinorev.ui.format.genreIconKind
 import ru.fet1sov.akinorev.ui.icons.AppIcon
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
 import ru.fet1sov.akinorev.ui.navigation.DarkNavigationPalette
+import ru.fet1sov.akinorev.ui.navigation.LightNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.NavigationPalette
 import java.time.Instant
 import java.time.ZoneId
@@ -73,11 +74,11 @@ fun PlayScreen(
     viewModel: PlayViewModel = viewModel(factory = PlayViewModel.factory(gameId, title)),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val palette = DarkNavigationPalette
     val context = LocalContext.current
     val app = context.applicationContext as AcinorevApplication
     val settings by app.container.appSettingsRepository.settings.collectAsStateWithLifecycle()
     val appDarkTheme = settings.theme.isDark(isSystemInDarkTheme())
+    val palette = if (appDarkTheme) DarkNavigationPalette else LightNavigationPalette
 
     var isPageLoading by remember { mutableStateOf(true) }
     var hasPageError by remember { mutableStateOf(false) }
@@ -226,8 +227,7 @@ private fun PlayHeader(
                 Brush.verticalGradient(
                     colors = listOf(
                         palette.bar,
-                        palette.bar.copy(alpha = 0.65f),
-                        palette.bar.copy(alpha = 0f),
+                        palette.screen,
                     ),
                 ),
             )
@@ -543,8 +543,8 @@ private fun PlayerSystemBarsEffect(isFullscreen: Boolean, appDarkTheme: Boolean)
         val controller = WindowCompat.getInsetsController(window, window.decorView)
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        controller.isAppearanceLightStatusBars = false
-        controller.isAppearanceLightNavigationBars = false
+        controller.isAppearanceLightStatusBars = !appDarkTheme
+        controller.isAppearanceLightNavigationBars = !appDarkTheme
 
         @Suppress("DEPRECATION")
         window.navigationBarColor = android.graphics.Color.TRANSPARENT

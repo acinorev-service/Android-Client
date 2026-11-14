@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -90,6 +92,8 @@ fun PlayScreen(
     PlayerSystemBarsEffect(
         isFullscreen = uiState.isFullscreen,
         appDarkTheme = appDarkTheme,
+        statusBarColor = palette.bar,
+        navigationBarColor = palette.screen,
     )
 
     Column(
@@ -223,14 +227,7 @@ private fun PlayHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        palette.bar,
-                        palette.screen,
-                    ),
-                ),
-            )
+            .background(fadeBrush(palette.bar, palette.screen))
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -532,11 +529,16 @@ private fun InviteDialog(
 }
 
 @Composable
-private fun PlayerSystemBarsEffect(isFullscreen: Boolean, appDarkTheme: Boolean) {
+private fun PlayerSystemBarsEffect(
+    isFullscreen: Boolean,
+    appDarkTheme: Boolean,
+    statusBarColor: Color,
+    navigationBarColor: Color,
+) {
     val context = LocalContext.current
     val activity = context as? android.app.Activity
 
-    DisposableEffect(activity, isFullscreen, appDarkTheme) {
+    DisposableEffect(activity, isFullscreen, appDarkTheme, statusBarColor, navigationBarColor) {
         val window = activity?.window
         if (window == null) return@DisposableEffect onDispose { }
 
@@ -547,9 +549,9 @@ private fun PlayerSystemBarsEffect(isFullscreen: Boolean, appDarkTheme: Boolean)
         controller.isAppearanceLightNavigationBars = !appDarkTheme
 
         @Suppress("DEPRECATION")
-        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = navigationBarColor.toArgb()
         @Suppress("DEPRECATION")
-        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.statusBarColor = statusBarColor.toArgb()
 
         if (isFullscreen) {
             controller.hide(WindowInsetsCompat.Type.systemBars())
@@ -583,6 +585,15 @@ private fun shareInvite(context: Context, title: String, link: String) {
     }
 }
 
+private fun fadeBrush(top: Color, bottom: Color): Brush {
+    val steps = List(GradientSteps) { index ->
+        val t = index.toFloat() / (GradientSteps - 1)
+        val eased = t * t * (3f - 2f * t)
+        lerp(top, bottom, eased)
+    }
+    return Brush.verticalGradient(steps)
+}
+
 private fun formatReleased(millis: Long): String {
     val formatter = DateTimeFormatter
         .ofLocalizedDate(FormatStyle.MEDIUM)
@@ -593,3 +604,5 @@ private fun formatReleased(millis: Long): String {
         .format(formatter)
 }
 
+
+private const val GradientSteps = 6

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,14 +15,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,11 +64,12 @@ fun ProfilePresence(
     ) {
         when {
             isBlocked -> PresenceDot(color = color, animated = false)
-            showPhone -> Icon(
-                imageVector = AppIcons.Phone,
+            showPhone -> Image(
+                painter = rememberVectorPainter(AppIcons.Phone),
                 contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(width = 16.dp, height = 16.dp),
+                modifier = Modifier.size(width = 14.dp, height = 19.dp),
+                contentScale = ContentScale.FillBounds,
+                colorFilter = ColorFilter.tint(color),
             )
             else -> PresenceDot(color = color, animated = online && LocalUiAnimationsEnabled.current)
         }

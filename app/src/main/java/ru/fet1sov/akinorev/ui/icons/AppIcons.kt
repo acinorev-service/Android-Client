@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 enum class AppIconKind {
@@ -44,6 +45,16 @@ enum class AppIconKind {
     Refresh,
     Search,
     Close,
+    Heart,
+    Repost,
+    Share,
+    Flag,
+    Pin,
+    Calendar,
+    Phone,
+    Block,
+    Check,
+    Send,
 }
 
 @Composable
@@ -52,6 +63,7 @@ fun AppIcon(
     tint: Color,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
+    size: Dp = 24.dp,
 ) {
     val vector = kind.toVector()
     if (vector != null) {
@@ -59,7 +71,7 @@ fun AppIcon(
             imageVector = vector,
             contentDescription = contentDescription,
             tint = tint,
-            modifier = modifier.size(24.dp),
+            modifier = modifier.size(size),
         )
     } else {
         NavIconImage(
@@ -99,6 +111,16 @@ private fun AppIconKind.toVector(): ImageVector? = when (this) {
     AppIconKind.Refresh -> AppIcons.Refresh
     AppIconKind.Search -> AppIcons.Search
     AppIconKind.Close -> AppIcons.Close
+    AppIconKind.Heart -> AppIcons.Heart
+    AppIconKind.Repost -> AppIcons.Repost
+    AppIconKind.Share -> AppIcons.Share
+    AppIconKind.Flag -> AppIcons.Flag
+    AppIconKind.Pin -> AppIcons.Pin
+    AppIconKind.Calendar -> AppIcons.Calendar
+    AppIconKind.Phone -> AppIcons.Phone
+    AppIconKind.Block -> AppIcons.Block
+    AppIconKind.Check -> AppIcons.Check
+    AppIconKind.Send -> AppIcons.Send
     AppIconKind.Home,
     AppIconKind.Logotype,
     -> null
@@ -356,6 +378,78 @@ object AppIcons {
         vector(
             viewport = 24f,
             VectorShape("M5 5l14 14M19 5L5 19", strokeWidth = 2f),
+        )
+    }
+
+    val Heart: ImageVector by lazy {
+        vector(
+            viewport = 16f,
+            HeartBody,
+        )
+    }
+
+    val Repost: ImageVector by lazy {
+        vector(
+            viewport = 20f,
+            RepostBody,
+        )
+    }
+
+    val Share: ImageVector by lazy {
+        vector(
+            viewport = 32f,
+            ShareBody,
+        )
+    }
+
+    val Flag: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            FlagBody,
+        )
+    }
+
+    val Pin: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            PinBody,
+        )
+    }
+
+    val Calendar: ImageVector by lazy {
+        vector(
+            viewport = 48f,
+            CalendarHeader,
+            CalendarBody,
+        )
+    }
+
+    val Phone: ImageVector by lazy {
+        vectorSized(
+            viewportWidth = 19f,
+            viewportHeight = 26f,
+            PhoneBody,
+        )
+    }
+
+    val Block: ImageVector by lazy {
+        vector(
+            viewport = 1000f,
+            BlockBody,
+        )
+    }
+
+    val Check: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M20 6L9 17l-5-5", strokeWidth = 2.5f),
+        )
+    }
+
+    val Send: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            VectorShape("M2.01 21L23 12 2.01 3l-.03 7 15.015 2L1.98 14l.03 7z"),
         )
     }
 }
@@ -641,6 +735,85 @@ private const val JoystickBody =
         "C28.1022 14.0517 27.7206 13.8761 27.4393 13.5636C27.158 13.251 27 12.8271 27 12.3851C27 11.943 27.158 11.5191" +
         "27.4393 11.2065C27.7206 10.894 28.1022 10.7184 28.5 10.7184C28.8978 10.7184 29.2794 10.894 29.5607 11.2065" +
         "C29.842 11.5191 30 11.943 30 12.3851C30 12.8271 29.842 13.251 29.5607 13.5636C29.2794 13.8761 28.8978 14.0517 28.5 14.0517Z"
+
+private val HeartBody = VectorShape(
+    "M1.24264 8.24264L8 15L14.7574 8.24264C15.553 7.44699 16 6.36786 16 5.24264V5.05234" +
+        "C16 2.8143 14.1857 1 11.9477 1C10.7166 1 9.55233 1.55959 8.78331 2.52086L8 3.5" +
+        "L7.21669 2.52086C6.44767 1.55959 5.28338 1 4.05234 1C1.8143 1 0 2.8143 0 5.05234V5.24264" +
+        "C0 6.36786 0.44699 7.44699 1.24264 8.24264Z",
+)
+
+private val RepostBody = VectorShape(
+    "M5 4a2 2 0 0 0-2 2v6H0l4 4 4-4H5V6h7l2-2H5zm10 4h-3l4-4 4 4h-3v6a2 2 0 0 1-2 2H6l2-2h7V8z",
+)
+
+private val ShareBody = VectorShape(
+    "M0 25.472q0 2.368 1.664 4.032t4.032 1.664h18.944q2.336 0 4-1.664t1.664-4.032v-8.192l-3.776 3.168v5.024" +
+        "q0 0.8-0.544 1.344t-1.344 0.576h-18.944q-0.8 0-1.344-0.576t-0.544-1.344v-18.944" +
+        "q0-0.768 0.544-1.344t1.344-0.544h9.472v-3.776h-9.472q-2.368 0-4.032 1.664t-1.664 4v18.944z" +
+        "M5.696 19.808q0 2.752 1.088 5.28 0.512-2.944 2.24-5.344t4.288-3.872 5.632-1.664v5.6l11.36-9.472" +
+        "-11.36-9.472v5.664q-2.688 0-5.152 1.056t-4.224 2.848-2.848 4.224-1.024 5.152z" +
+        "M32 22.080v0 0 0z",
+)
+
+private val FlagBody = VectorShape(
+    "M5.75 1C6.16421 1 6.5 1.33579 6.5 1.75V3.6L8.22067 3.25587C9.8712 2.92576 11.5821 3.08284 13.1449 3.70797" +
+        "L13.3486 3.78943C14.9097 4.41389 16.628 4.53051 18.2592 4.1227C19.0165 3.93339 19.75 4.50613 19.75 5.28669" +
+        "V12.6537C19.75 13.298 19.3115 13.8596 18.6864 14.0159L18.472 14.0695C16.7024 14.5119 14.8385 14.3854 " +
+        "13.1449 13.708C11.5821 13.0828 9.8712 12.9258 8.22067 13.2559L6.5 13.6V21.75C6.5 22.1642 6.16421 22.5 " +
+        "5.75 22.5C5.33579 22.5 5 22.1642 5 21.75V1.75C5 1.33579 5.33579 1 5.75 1Z",
+)
+
+private val PinBody = VectorShape(
+    "M19.1835 7.80516L16.2188 4.83755C14.1921 2.8089 13.1788 1.79457 12.0904 2.03468" +
+        "C11.0021 2.2748 10.5086 3.62155 9.5217 6.31506L8.85373 8.1381" +
+        "C8.59063 8.85617 8.45908 9.2152 8.22239 9.49292C8.11619 9.61754 7.99536 9.72887 7.86251 9.82451" +
+        "C7.56644 10.0377 7.19811 10.1392 6.46145 10.3423C4.80107 10.8 3.97088 11.0289 3.65804 11.5721" +
+        "C3.5228 11.8069 3.45242 12.0735 3.45413 12.3446C3.45809 12.9715 4.06698 13.581 5.28476 14.8" +
+        "L6.69935 16.2163L2.22345 20.6964C1.92552 20.9946 1.92552 21.4782 2.22345 21.7764" +
+        "C2.52138 22.0746 3.00443 22.0746 3.30236 21.7764L7.77841 17.2961L9.24441 18.7635" +
+        "C10.4699 19.9902 11.0827 20.6036 11.7134 20.6045C11.9792 20.6049 12.2404 20.5358 12.4713 20.4041" +
+        "C13.0192 20.0914 13.2493 19.2551 13.7095 17.5825C13.9119 16.8472 14.013 16.4795 14.2254 16.1835" +
+        "C14.3184 16.054 14.4262 15.9358 14.5468 15.8314C14.8221 15.593 15.1788 15.459 15.8922 15.191" +
+        "L17.7362 14.4981C20.4 13.4973 21.7319 12.9969 21.9667 11.9115C22.2014 10.826 21.1954 9.81905 " +
+        "19.1835 7.80516Z",
+)
+
+private val CalendarHeader = VectorShape(
+    "M15.5 5C15.5 4.17158 14.8285 3.5 14 3.5C13.1716 3.5 12.5 4.17158 12.5 5V8.15852" +
+        "C9.62139 8.38902 7.73159 8.95474 6.34319 10.3431C4.95479 11.7315 4.38907 13.6213 4.15857 16.5" +
+        "H43.8414C43.611 13.6213 43.0452 11.7315 41.6568 10.3431C40.2684 8.95474 38.3786 8.38902 35.5 8.15852" +
+        "V5C35.5 4.17158 34.8284 3.5 34 3.5C33.1716 3.5 32.5 4.17158 32.5 5V8.0258C31.1694 8 29.678 8 28 8H20" +
+        "C18.322 8 16.8306 8 15.5 8.0258V5Z",
+)
+
+private val CalendarBody = VectorShape(
+    "M44 24V28C44 35.5424 44 39.3138 41.6568 41.6568C39.3138 44 35.5424 44 28 44H20" +
+        "C12.4575 44 8.6863 44 6.34314 41.6568C4 39.3138 4 35.5424 4 28V24C4 22.322 4 20.8306 4.0258 19.5" +
+        "H43.9742C44 20.8306 44 22.322 44 24ZM33 36C34.6568 36 36 34.6568 36 33C36 31.3432 34.6568 30 33 30" +
+        "C31.3432 30 30 31.3432 30 33C30 34.6568 31.3432 36 33 36Z",
+    PathFillType.EvenOdd,
+)
+
+private val PhoneBody = VectorShape(
+    "M9.5 21.25H9.51417M8.08333 4.25H10.9167M5.53333 25.5H13.4667C15.0535 25.5 15.847 25.5 16.453 25.1912" +
+        "C16.9861 24.9196 17.4196 24.4861 17.6912 23.953C18 23.347 18 22.5535 18 20.9667V4.53333" +
+        "C18 2.94652 18 2.15311 17.6912 1.54703C17.4196 1.01389 16.9861 0.580451 16.453 0.308819" +
+        "C15.847 -1.0555e-07 15.0535 0 13.4667 0H5.53333C3.94652 0 3.15311 -1.0555e-07 2.54703 0.308819" +
+        "C2.01389 0.580451 1.58045 1.01389 1.30882 1.54703C1 2.15311 1 2.94651 1 4.53333V20.9667" +
+        "C1 22.5535 1 23.347 1.30882 23.953C1.58045 24.4861 2.01389 24.9196 2.54703 25.1912" +
+        "C3.15311 25.5 3.94651 25.5 5.53333 25.5Z",
+    strokeWidth = 2f,
+)
+
+private val BlockBody = VectorShape(
+    "M500 930q-117 0-217-59-97-57-154-154-59-100-59-217t59-217q57-97 154-154 100-59 217-59" +
+        "t217 59q97 57 154 154 59 100 59 217t-59 217q-57 97-154 154-100 59-217 59z" +
+        "M320 760q39 28 85.5 42.5T500 817q86 0 160-44 71-42 113-113 44-74 44-160 0-48-14.5-94.5T760 320z" +
+        "m180-577q-86 0-160 44-71 42-113 113-44 74-44 160 0 48 14.5 94.5T240 680l440-440" +
+        "q-39-28-85.5-42.5T500 183z",
+    PathFillType.EvenOdd,
+)
 
 private val ArrowRightBody = VectorShape(
     "M7.9395 2.45401C7.65829 2.7353 7.50032 3.11676 7.50032 3.51451C7.50032 3.91226 7.65829 4.29372 7.9395 4.57501" +

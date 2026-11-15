@@ -47,14 +47,10 @@ fun ProfilePresence(
         online -> OnlineColor
         else -> OfflineColor
     }
-    val deviceKind = DeviceKind.from(if (online) device else lastSeenDevice)
+    val showPhone = isMobileDevice(if (online) device else lastSeenDevice)
     val label = when {
         isBlocked -> stringResource(R.string.community_profile_blocked)
-        online -> when (deviceKind) {
-            DeviceKind.Mobile -> stringResource(R.string.community_profile_online_mobile)
-            DeviceKind.Desktop -> stringResource(R.string.community_profile_online_desktop)
-            DeviceKind.Unknown -> stringResource(R.string.community_profile_online)
-        }
+        online -> stringResource(R.string.community_profile_online)
         else -> rememberLastSeenLabel(lastSeenMillis)
     }
 
@@ -65,17 +61,11 @@ fun ProfilePresence(
     ) {
         when {
             isBlocked -> PresenceDot(color = color, animated = false)
-            deviceKind == DeviceKind.Mobile -> Icon(
+            showPhone -> Icon(
                 imageVector = AppIcons.Phone,
                 contentDescription = null,
                 tint = color,
-                modifier = Modifier.size(width = 14.dp, height = 16.dp),
-            )
-            deviceKind == DeviceKind.Desktop -> Icon(
-                imageVector = AppIcons.Desktop,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(width = 16.dp, height = 16.dp),
             )
             else -> PresenceDot(color = color, animated = online && LocalUiAnimationsEnabled.current)
         }
@@ -141,19 +131,7 @@ private fun PresenceDot(
     }
 }
 
-private enum class DeviceKind {
-    Mobile,
-    Desktop,
-    Unknown;
-
-    companion object {
-        fun from(raw: String): DeviceKind = when (raw.trim().lowercase()) {
-            "mobile" -> Mobile
-            "desktop" -> Desktop
-            else -> Unknown
-        }
-    }
-}
+private fun isMobileDevice(raw: String): Boolean = raw.trim().equals("mobile", ignoreCase = true)
 
 private val OnlineColor = Color(0xFF16A34A)
 private val OfflineColor = Color(0xFF9CA3AF)

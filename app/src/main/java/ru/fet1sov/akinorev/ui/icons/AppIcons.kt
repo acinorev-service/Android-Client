@@ -432,13 +432,6 @@ object AppIcons {
         )
     }
 
-    val Desktop: ImageVector by lazy {
-        vector(
-            viewport = 24f,
-            DesktopBody,
-        )
-    }
-
     val Block: ImageVector by lazy {
         vector(
             viewport = 1000f,
@@ -811,11 +804,6 @@ private val PhoneBody = VectorShape(
         "C1 22.5535 1 23.347 1.30882 23.953C1.58045 24.4861 2.01389 24.9196 2.54703 25.1912" +
         "C3.15311 25.5 3.94651 25.5 5.53333 25.5Z",
     strokeWidth = 2f,
-)
-
-private val DesktopBody = VectorShape(
-    "M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4" +
-        "c0-1.1-.9-2-2-2zm0 14H3V4h18v12z",
 )
 
 private val BlockBody = VectorShape(

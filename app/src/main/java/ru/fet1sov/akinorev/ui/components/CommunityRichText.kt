@@ -40,7 +40,7 @@ fun CommunityRichText(
     val inlineContent = remember(text, emojiUrls, emojiSize) {
         mutableMapOf<String, InlineTextContent>()
     }
-    val annotated = remember(text, emojiUrls, emojiSize, style) {
+    val annotated = remember(text, emojiUrls, emojiSize) {
         buildCommunityText(
             source = text,
             emojiUrls = emojiUrls,

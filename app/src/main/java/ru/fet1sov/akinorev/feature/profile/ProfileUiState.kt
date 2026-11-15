@@ -1,5 +1,6 @@
 package ru.fet1sov.akinorev.feature.profile
 
+import androidx.compose.runtime.Immutable
 import ru.fet1sov.akinorev.model.CommunityPost
 import ru.fet1sov.akinorev.model.CommunityProfile
 import ru.fet1sov.akinorev.model.PostImage
@@ -118,6 +119,7 @@ data class ProfileEditUiState(
     val error: ProfileEditError? = null,
 )
 
+@Immutable
 data class ProfileUiState(
     val username: String = "",
     val isLoading: Boolean = false,

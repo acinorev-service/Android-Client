@@ -1,5 +1,6 @@
 package ru.fet1sov.akinorev.feature.profile.comments
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,7 @@ import ru.fet1sov.akinorev.feature.profile.toPostActionError
 import ru.fet1sov.akinorev.model.PostComment
 import ru.fet1sov.akinorev.model.collectEmojiNames
 
+@Immutable
 data class PostCommentsUiState(
     val comments: List<PostComment> = emptyList(),
     val total: Int = 0,

@@ -25,10 +25,12 @@ fun RemoteImage(
     contentScale: ContentScale = ContentScale.Crop,
     placeholder: (@Composable () -> Unit)? = null,
 ) {
-    var image by remember(url) { mutableStateOf<AvatarImage?>(null) }
+    var image by remember(url) { mutableStateOf(RemoteImageLoader.cached(url)) }
 
     LaunchedEffect(url) {
-        image = if (url.isBlank()) null else RemoteImageLoader.load(url)
+        if (image == null) {
+            image = if (url.isBlank()) null else RemoteImageLoader.load(url)
+        }
     }
 
     val target = modifier.clip(shape)

@@ -8,6 +8,8 @@ import okhttp3.Request
 internal object RemoteImageLoader {
     private val client = OkHttpClient()
 
+    fun cached(url: String): AvatarImage? = AvatarImageCache.get(url)
+
     suspend fun load(url: String): AvatarImage? {
         AvatarImageCache.get(url)?.let { return it }
 

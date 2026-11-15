@@ -1,5 +1,8 @@
-package ru.fet1sov.akinorev.model
+﻿package ru.fet1sov.akinorev.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class ProfileBadge(
     val userItemId: String,
     val itemId: String,
@@ -9,6 +12,7 @@ data class ProfileBadge(
     val rarity: String,
 )
 
+@Immutable
 data class CommunityProfile(
     val id: String,
     val username: String,
@@ -26,6 +30,7 @@ data class CommunityProfile(
     val badges: List<ProfileBadge>,
 )
 
+@Immutable
 data class ProfileRelation(
     val isSelf: Boolean,
     val isFollowing: Boolean,
@@ -33,6 +38,7 @@ data class ProfileRelation(
     val blockedMe: Boolean,
 )
 
+@Immutable
 data class PostAuthor(
     val id: String,
     val username: String,
@@ -42,12 +48,14 @@ data class PostAuthor(
     val nameAnimation: String,
 )
 
+@Immutable
 data class PostImage(
     val url: String,
     val mime: String = "",
     val size: Long = 0,
 )
 
+@Immutable
 data class CommunityPost(
     val id: String,
     val author: PostAuthor,
@@ -75,6 +83,7 @@ data class CommunityPost(
         if (isRepost && repostOf != null) copy(repostOf = transform(repostOf)) else transform(this)
 }
 
+@Immutable
 data class PostComment(
     val id: String,
     val postId: String,

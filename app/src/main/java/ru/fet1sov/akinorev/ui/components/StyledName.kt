@@ -37,10 +37,11 @@ fun StyledName(
     fallbackColor: Color = Color.Unspecified,
     maxLines: Int = 1,
     overflow: TextOverflow = TextOverflow.Ellipsis,
+    animated: Boolean = true,
 ) {
     val base = remember(nameColor) { parseHexColor(nameColor) }
     val animation = nameAnimation.lowercase()
-    val isAnimated = animation == AnimationGradient || animation == AnimationRainbow
+    val isAnimated = animated && (animation == AnimationGradient || animation == AnimationRainbow)
 
     if (!isAnimated) {
         Text(

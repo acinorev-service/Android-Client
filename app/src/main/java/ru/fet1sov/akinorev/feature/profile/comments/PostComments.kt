@@ -462,6 +462,7 @@ private fun CommentNode(
                             fontWeight = FontWeight.Bold,
                             fallbackColor = palette.textPrimary,
                             maxLines = 1,
+                            animated = false,
                         )
                     } else {
                         Text(

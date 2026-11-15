@@ -1238,10 +1238,7 @@ class ProfileViewModel(
             if (!viewedPostIds.add(target.id)) return@forEach
 
             viewModelScope.launch {
-                when (val result = communityRepository.registerView(target.author.username, target.id)) {
-                    is AuthResult.Success -> updatePostTarget(post.id) { it.copy(views = result.value) }
-                    is AuthResult.Failure -> Unit
-                }
+                communityRepository.registerView(target.author.username, target.id)
             }
         }
     }

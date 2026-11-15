@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import ru.fet1sov.akinorev.BuildConfig
 import ru.fet1sov.akinorev.R
@@ -111,12 +112,14 @@ fun ProfileScreen(
     }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0 }
-            .collect { lastIndex ->
-                val total = listState.layoutInfo.totalItemsCount
-                if (total > 0 && lastIndex >= total - 3) {
-                    viewModel.loadMorePosts()
-                }
+        snapshotFlow {
+            val info = listState.layoutInfo
+            val lastIndex = info.visibleItemsInfo.lastOrNull()?.index ?: -1
+            info.totalItemsCount > 0 && lastIndex >= info.totalItemsCount - 3
+        }
+            .distinctUntilChanged()
+            .collect { nearEnd ->
+                if (nearEnd) viewModel.loadMorePosts()
             }
     }
 
@@ -422,13 +425,18 @@ private fun ProfileContent(
                         )
                     }
 
-                    else -> items(uiState.posts, key = { it.id }) { post ->
+                    else -> items(
+                        items = uiState.posts,
+                        key = { it.id },
+                        contentType = { "post" },
+                    ) { post ->
                         PostCard(
                             post = post,
                             emojiUrls = uiState.emojiUrls,
                             canManage = uiState.canManagePosts,
                             isPending = post.id in uiState.pendingPostIds,
                             isReported = post.target.id in uiState.reportedPostIds,
+                            animateNames = !listState.isScrollInProgress,
                             onOpenProfile = onOpenProfile,
                             onLike = { onLike(post.id) },
                             onCommentsCountChanged = { count -> onCommentsCountChanged(post.id, count) },

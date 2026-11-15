@@ -1,6 +1,7 @@
 package ru.fet1sov.akinorev.ui.format
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import ru.fet1sov.akinorev.R
 import java.util.Locale
@@ -8,19 +9,28 @@ import java.util.Locale
 @Composable
 fun rememberCompactCount(value: Int): String {
     val locale = Locale.getDefault()
-    val suffixes = CompactSuffixes(
-        thousand = stringResource(R.string.community_compact_thousand),
-        million = stringResource(R.string.community_compact_million),
-        billion = stringResource(R.string.community_compact_billion),
-        trillion = stringResource(R.string.community_compact_trillion),
-    )
-    return formatCompactNumber(value, suffixes, decimalComma = locale.language == "ru")
+    val thousand = stringResource(R.string.community_compact_thousand)
+    val million = stringResource(R.string.community_compact_million)
+    val billion = stringResource(R.string.community_compact_billion)
+    val trillion = stringResource(R.string.community_compact_trillion)
+    val suffixes = remember(thousand, million, billion, trillion) {
+        CompactSuffixes(
+            thousand = thousand,
+            million = million,
+            billion = billion,
+            trillion = trillion,
+        )
+    }
+    return remember(value, suffixes, locale) {
+        formatCompactNumber(value, suffixes, decimalComma = locale.language == "ru")
+    }
 }
 
 @Composable
 fun rememberPostTimestamp(millis: Long?): String {
     val locale = Locale.getDefault()
-    return when (val timestamp = formatPostTimestamp(millis, locale)) {
+    val timestamp = remember(millis, locale) { formatPostTimestamp(millis, locale) }
+    return when (timestamp) {
         is PostTimestamp.Today -> stringResource(R.string.community_timestamp_today, timestamp.time)
         is PostTimestamp.Yesterday -> stringResource(R.string.community_timestamp_yesterday, timestamp.time)
         is PostTimestamp.FullDate -> timestamp.text

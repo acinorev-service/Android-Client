@@ -53,6 +53,7 @@ enum class AppIconKind {
     Calendar,
     Phone,
     Block,
+    Lock,
     Check,
     Send,
 }
@@ -119,6 +120,7 @@ private fun AppIconKind.toVector(): ImageVector? = when (this) {
     AppIconKind.Calendar -> AppIcons.Calendar
     AppIconKind.Phone -> AppIcons.Phone
     AppIconKind.Block -> AppIcons.Block
+    AppIconKind.Lock -> AppIcons.Lock
     AppIconKind.Check -> AppIcons.Check
     AppIconKind.Send -> AppIcons.Send
     AppIconKind.Home,
@@ -436,6 +438,13 @@ object AppIcons {
         vector(
             viewport = 1000f,
             BlockBody,
+        )
+    }
+
+    val Lock: ImageVector by lazy {
+        vector(
+            viewport = 24f,
+            LockBody,
         )
     }
 
@@ -812,6 +821,12 @@ private val BlockBody = VectorShape(
         "M320 760q39 28 85.5 42.5T500 817q86 0 160-44 71-42 113-113 44-74 44-160 0-48-14.5-94.5T760 320z" +
         "m180-577q-86 0-160 44-71 42-113 113-44 74-44 160 0 48 14.5 94.5T240 680l440-440" +
         "q-39-28-85.5-42.5T500 183z",
+    PathFillType.EvenOdd,
+)
+
+private val LockBody = VectorShape(
+    "M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7" +
+        "a2 2 0 0 1 2-2h1zm2 0h6V7a3 3 0 0 0-6 0v3z",
     PathFillType.EvenOdd,
 )
 

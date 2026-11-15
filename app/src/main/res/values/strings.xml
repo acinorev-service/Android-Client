@@ -334,6 +334,21 @@
     <string name="community_posts_share_error">Could not share the post</string>
     <string name="community_posts_share_title">Post by @%1$s on Acinorev</string>
     <string name="community_posts_markdown_hint">Markdown supported</string>
+    <string name="community_feed_title">Community</string>
+    <string name="community_feed_subtitle">Fresh and noteworthy player posts: new ones and already-popular ones rise to the top</string>
+    <string name="community_feed_popular">Popular</string>
+    <string name="community_feed_new">New</string>
+    <string name="community_feed_following">Following</string>
+    <string name="community_feed_unauthorized_title">Sign in to see your following</string>
+    <string name="community_feed_unauthorized_description">Posts from people you follow will appear here.</string>
+    <string name="community_feed_unauthorized_login">Sign in</string>
+    <string name="community_feed_following_empty">No posts here yet: follow someone or wait for new posts</string>
+    <string name="community_feed_empty">No posts in the community yet</string>
+    <string name="community_feed_error">Failed to load the feed</string>
+    <string name="community_feed_retry">Try again</string>
+    <string name="community_feed_load_more">Show more</string>
+    <string name="community_feed_loading_more">Loading…</string>
+    <string name="community_feed_end">That\'s all the posts</string>
 
     <string name="community_comments_title">Comments</string>
     <string name="community_comments_empty">No comments yet</string>

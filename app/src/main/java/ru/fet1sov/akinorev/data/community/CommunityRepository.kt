@@ -4,6 +4,7 @@ import ru.fet1sov.akinorev.data.remote.AuthError
 import ru.fet1sov.akinorev.data.remote.AuthResult
 import ru.fet1sov.akinorev.model.CommentLikeResult
 import ru.fet1sov.akinorev.model.CommunityImage
+import ru.fet1sov.akinorev.model.CommunityFeedMode
 import ru.fet1sov.akinorev.model.CommunityPost
 import ru.fet1sov.akinorev.model.CommunityProfile
 import ru.fet1sov.akinorev.model.FollowResult
@@ -31,6 +32,12 @@ interface CommunityRepository {
     suspend fun fetchProfile(username: String): AuthResult<CommunityProfile>
 
     suspend fun fetchPosts(username: String, limit: Int, offset: Int): AuthResult<PostsPage>
+
+    suspend fun fetchFeed(
+        mode: CommunityFeedMode,
+        limit: Int,
+        offset: Int,
+    ): AuthResult<PostsPage>
 
     suspend fun fetchRelation(username: String): AuthResult<ProfileRelation>
 
@@ -108,5 +115,6 @@ interface CommunityRepository {
 }
 
 const val PostsPageSize = 10
+const val CommunityFeedPageSize = 20
 const val CommentsPageSize = 10
 const val MaxPostImages = 4

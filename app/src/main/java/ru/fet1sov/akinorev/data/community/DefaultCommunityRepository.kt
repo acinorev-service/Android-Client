@@ -17,6 +17,7 @@ import ru.fet1sov.akinorev.data.remote.dto.ReportPostRequest
 import ru.fet1sov.akinorev.data.remote.dto.UpdateCommentRequest
 import ru.fet1sov.akinorev.data.remote.dto.UpdatePostRequest
 import ru.fet1sov.akinorev.model.CommentLikeResult
+import ru.fet1sov.akinorev.model.CommunityFeedMode
 import ru.fet1sov.akinorev.model.CommunityImage
 import ru.fet1sov.akinorev.model.CommunityPost
 import ru.fet1sov.akinorev.model.CommunityProfile
@@ -51,6 +52,29 @@ class DefaultCommunityRepository(
 
     override suspend fun fetchPosts(username: String, limit: Int, offset: Int): AuthResult<PostsPage> =
         when (val result = client.execute { api.getPosts(username, limit, offset) }) {
+            is AuthResult.Success -> AuthResult.Success(
+                PostsPage(
+                    posts = result.value.posts.mapNotNull { it.toDomain() },
+                    hasMore = result.value.hasMore,
+                ),
+            )
+
+            is AuthResult.Failure -> result
+        }
+
+    override suspend fun fetchFeed(
+        mode: CommunityFeedMode,
+        limit: Int,
+        offset: Int,
+    ): AuthResult<PostsPage> =
+        when (val result = client.execute {
+            api.getCommunityFeed(
+                limit = limit,
+                offset = offset,
+                sort = mode.sort,
+                filter = mode.filter,
+            )
+        }) {
             is AuthResult.Success -> AuthResult.Success(
                 PostsPage(
                     posts = result.value.posts.mapNotNull { it.toDomain() },

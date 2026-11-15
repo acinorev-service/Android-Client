@@ -92,6 +92,14 @@ interface AcinorevApi {
         @Query("offset") offset: Int,
     ): Response<ApiEnvelope<PostsPayloadDto>>
 
+    @GET("community/posts")
+    suspend fun getCommunityFeed(
+        @Query("limit") limit: Int,
+        @Query("offset") offset: Int,
+        @Query("sort") sort: String,
+        @Query("filter") filter: String? = null,
+    ): Response<ApiEnvelope<PostsPayloadDto>>
+
     @POST("user/{username}/posts")
     suspend fun createPost(
         @Path("username") username: String,

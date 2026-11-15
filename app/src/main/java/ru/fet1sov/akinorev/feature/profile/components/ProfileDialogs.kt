@@ -45,6 +45,8 @@ import ru.fet1sov.akinorev.R
 import ru.fet1sov.akinorev.data.community.MaxPostImages
 import ru.fet1sov.akinorev.feature.profile.ComposerImageUi
 import ru.fet1sov.akinorev.feature.profile.ProfileUiState
+import ru.fet1sov.akinorev.feature.profile.ReportDialogUiState
+import ru.fet1sov.akinorev.feature.profile.RepostDialogUiState
 import ru.fet1sov.akinorev.feature.profile.components.postActionErrorText
 import ru.fet1sov.akinorev.ui.components.StyledName
 import ru.fet1sov.akinorev.ui.components.UserAvatar
@@ -93,7 +95,7 @@ fun ProfileDialogs(
 
     if (uiState.repost.isOpen) {
         RepostDialog(
-            uiState = uiState,
+            state = uiState.repost,
             onDismiss = onDismissRepost,
             onConfirm = onConfirmRepost,
         )
@@ -101,7 +103,7 @@ fun ProfileDialogs(
 
     if (uiState.report.isOpen) {
         ReportDialog(
-            uiState = uiState,
+            state = uiState.report,
             onDismiss = onDismissReport,
             onReasonChange = onReportReasonChange,
             onCommentChange = onReportCommentChange,
@@ -231,12 +233,12 @@ private fun EditPostDialog(
 }
 
 @Composable
-private fun RepostDialog(
-    uiState: ProfileUiState,
+fun RepostDialog(
+    state: RepostDialogUiState,
     onDismiss: () -> Unit,
     onConfirm: (String, List<String>) -> Unit,
 ) {
-    val post = uiState.repost.post ?: return
+    val post = state.post ?: return
     val author = post.target.author
     val palette = navigationPalette()
 
@@ -247,7 +249,7 @@ private fun RepostDialog(
         ProfileDialogCard(
             title = stringResource(R.string.community_posts_repost_title),
             onDismiss = onDismiss,
-            dismissEnabled = !uiState.repost.isSubmitting,
+            dismissEnabled = !state.isSubmitting,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -295,10 +297,10 @@ private fun RepostDialog(
                     }
                 },
                 onRemoveImage = { id -> images = images.filterNot { it.id == id } },
-                enabled = !uiState.repost.isSubmitting,
+                enabled = !state.isSubmitting,
             )
 
-            uiState.repost.error?.let { error ->
+            state.error?.let { error ->
                 Text(
                     text = postActionErrorText(error),
                     color = DangerColor,
@@ -313,19 +315,19 @@ private fun RepostDialog(
             ) {
                 DialogAction(
                     text = stringResource(R.string.community_posts_delete_cancel),
-                    enabled = !uiState.repost.isSubmitting,
+                    enabled = !state.isSubmitting,
                     onClick = onDismiss,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 DialogAction(
                     text = stringResource(
-                        if (uiState.repost.isSubmitting) {
+                        if (state.isSubmitting) {
                             R.string.community_posts_reposting
                         } else {
                             R.string.community_posts_repost
                         },
                     ),
-                    enabled = !uiState.repost.isSubmitting,
+                    enabled = !state.isSubmitting,
                     primary = true,
                     onClick = { onConfirm(caption, images.mapNotNull { it.uri }) },
                 )
@@ -335,14 +337,14 @@ private fun RepostDialog(
 }
 
 @Composable
-private fun ReportDialog(
-    uiState: ProfileUiState,
+fun ReportDialog(
+    state: ReportDialogUiState,
     onDismiss: () -> Unit,
     onReasonChange: (String) -> Unit,
     onCommentChange: (String) -> Unit,
     onSubmit: () -> Unit,
 ) {
-    val report = uiState.report
+    val report = state
     val palette = navigationPalette()
 
     ProfileDialogCard(

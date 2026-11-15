@@ -117,7 +117,7 @@ fun AcinorevNavHost(
             NotificationsScreen(onOpenProfile = menuActions::openProfile)
         }
         composable<CommunityDestination> {
-            CommunityScreen()
+            CommunityScreen(onOpenProfile = menuActions::openProfile)
         }
         composable<EmojisDestination> {
             EmojisScreen(

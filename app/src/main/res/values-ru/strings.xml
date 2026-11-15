@@ -334,6 +334,21 @@
     <string name="community_posts_share_error">Не удалось поделиться постом</string>
     <string name="community_posts_share_title">Пост @%1$s на Acinorev</string>
     <string name="community_posts_markdown_hint">Поддерживается Markdown</string>
+    <string name="community_feed_title">Сообщество</string>
+    <string name="community_feed_subtitle">Свежие и заметные посты игроков: наверху и новые, и уже успевшие полюбиться</string>
+    <string name="community_feed_popular">Популярное</string>
+    <string name="community_feed_new">Новое</string>
+    <string name="community_feed_following">Подписки</string>
+    <string name="community_feed_unauthorized_title">Войдите, чтобы увидеть подписки</string>
+    <string name="community_feed_unauthorized_description">Здесь появятся посты тех, на кого вы подписаны.</string>
+    <string name="community_feed_unauthorized_login">Войти</string>
+    <string name="community_feed_following_empty">Здесь пока нет постов: подпишитесь на кого-нибудь или дождитесь новых публикаций</string>
+    <string name="community_feed_empty">В сообществе пока нет постов</string>
+    <string name="community_feed_error">Не удалось загрузить ленту</string>
+    <string name="community_feed_retry">Повторить</string>
+    <string name="community_feed_load_more">Показать ещё</string>
+    <string name="community_feed_loading_more">Загружаем…</string>
+    <string name="community_feed_end">Это все посты</string>
 
     <string name="community_comments_title">Комментарии</string>
     <string name="community_comments_empty">Комментариев пока нет</string>

@@ -5,6 +5,7 @@ import ru.fet1sov.akinorev.data.community.ImageUploadResult
 import ru.fet1sov.akinorev.data.remote.AuthError
 import ru.fet1sov.akinorev.data.remote.AuthResult
 import ru.fet1sov.akinorev.model.CommentLikeResult
+import ru.fet1sov.akinorev.model.CommunityFeedMode
 import ru.fet1sov.akinorev.model.CommunityPost
 import ru.fet1sov.akinorev.model.CommunityProfile
 import ru.fet1sov.akinorev.model.FollowResult
@@ -21,6 +22,7 @@ import ru.fet1sov.akinorev.model.ProfileRelation
 class FakeCommunityRepository : CommunityRepository {
     var profileResult: AuthResult<CommunityProfile> = AuthResult.Success(fakeCommunityProfile())
     var postsResults: MutableMap<Int, AuthResult<PostsPage>> = mutableMapOf()
+    var feedResults: MutableMap<Int, AuthResult<PostsPage>> = mutableMapOf()
     var relationResult: AuthResult<ProfileRelation> = AuthResult.Success(
         ProfileRelation(isSelf = false, isFollowing = false, isBlocked = false, blockedMe = false),
     )
@@ -44,6 +46,7 @@ class FakeCommunityRepository : CommunityRepository {
     var profileRequests: Int = 0
         private set
     val postsRequests: MutableList<Pair<Int, Int>> = mutableListOf()
+    val feedRequests: MutableList<Triple<CommunityFeedMode, Int, Int>> = mutableListOf()
     var relationRequests: Int = 0
         private set
     var followingRequests: Int = 0
@@ -60,6 +63,15 @@ class FakeCommunityRepository : CommunityRepository {
     override suspend fun fetchPosts(username: String, limit: Int, offset: Int): AuthResult<PostsPage> {
         postsRequests += limit to offset
         return postsResults[offset] ?: AuthResult.Success(PostsPage(posts = emptyList(), hasMore = false))
+    }
+
+    override suspend fun fetchFeed(
+        mode: CommunityFeedMode,
+        limit: Int,
+        offset: Int,
+    ): AuthResult<PostsPage> {
+        feedRequests += Triple(mode, limit, offset)
+        return feedResults[offset] ?: AuthResult.Success(PostsPage(posts = emptyList(), hasMore = false))
     }
 
     override suspend fun fetchRelation(username: String): AuthResult<ProfileRelation> {

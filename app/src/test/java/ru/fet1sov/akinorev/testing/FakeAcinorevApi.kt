@@ -108,6 +108,8 @@ class FakeAcinorevApi : AcinorevApi {
     var onDeleteEmoji: suspend (String) -> Response<ApiEnvelope<EmojiDeletedDto>> = { error(404) }
     var onGetPosts: suspend (String, Int, Int) -> Response<ApiEnvelope<PostsPayloadDto>> =
         { _, _, _ -> error(404) }
+    var onGetCommunityFeed: suspend (Int, Int, String, String?) -> Response<ApiEnvelope<PostsPayloadDto>> =
+        { _, _, _, _ -> error(404) }
     var onCreatePost: suspend (String, CreatePostRequest) -> Response<ApiEnvelope<PostPayloadDto>> =
         { _, _ -> error(404) }
     var onUpdatePost: suspend (String, String, UpdatePostRequest) -> Response<ApiEnvelope<PostPayloadDto>> =
@@ -249,6 +251,13 @@ class FakeAcinorevApi : AcinorevApi {
         limit: Int,
         offset: Int,
     ): Response<ApiEnvelope<PostsPayloadDto>> = onGetPosts(username, limit, offset)
+
+    override suspend fun getCommunityFeed(
+        limit: Int,
+        offset: Int,
+        sort: String,
+        filter: String?,
+    ): Response<ApiEnvelope<PostsPayloadDto>> = onGetCommunityFeed(limit, offset, sort, filter)
 
     override suspend fun createPost(
         username: String,

@@ -114,6 +114,7 @@ fun PostCard(
                         username = headerAuthor.username,
                         size = 40.dp,
                         isSubscribed = headerAuthor.isSubscribed,
+                        showSubscriptionBadge = false,
                         shape = CircleShape,
                     )
                     AuthorName(
@@ -482,6 +483,7 @@ private fun CommentPreviewItem(
             username = author?.username.orEmpty(),
             size = 24.dp,
             isSubscribed = author?.isSubscribed == true,
+            showSubscriptionBadge = false,
             shape = CircleShape,
         )
 

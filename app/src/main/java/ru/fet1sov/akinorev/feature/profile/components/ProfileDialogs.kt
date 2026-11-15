@@ -259,6 +259,7 @@ private fun RepostDialog(
                     username = author.username,
                     size = 32.dp,
                     isSubscribed = author.isSubscribed,
+                    showSubscriptionBadge = false,
                     shape = CircleShape,
                 )
                 Column {

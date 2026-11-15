@@ -441,6 +441,7 @@ private fun CommentNode(
                 username = comment.author?.username.orEmpty(),
                 size = 30.dp,
                 isSubscribed = comment.author?.isSubscribed == true,
+                showSubscriptionBadge = false,
                 shape = CircleShape,
             )
 

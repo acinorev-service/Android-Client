@@ -29,6 +29,7 @@ fun UserAvatar(
     size: Dp,
     modifier: Modifier = Modifier,
     isSubscribed: Boolean = false,
+    showSubscriptionBadge: Boolean = true,
     shape: Shape = RoundedCornerShape(10.dp),
 ) {
     val palette = navigationPalette()
@@ -55,7 +56,7 @@ fun UserAvatar(
             },
         )
 
-        if (isSubscribed) {
+        if (isSubscribed && showSubscriptionBadge) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)

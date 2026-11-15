@@ -83,6 +83,7 @@ fun ProfileHeaderSection(
                     username = profile.username,
                     size = 156.dp,
                     isSubscribed = profile.isSubscribed,
+                    showSubscriptionBadge = false,
                     shape = CircleShape,
                 )
             }

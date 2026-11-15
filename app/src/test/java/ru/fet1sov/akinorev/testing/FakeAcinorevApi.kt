@@ -20,6 +20,7 @@ import ru.fet1sov.akinorev.data.remote.dto.PostRepostPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PostViewPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.PostsPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ProfileRelationDto
+import ru.fet1sov.akinorev.data.remote.dto.PublicUserPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ReportPayloadDto
 import ru.fet1sov.akinorev.data.remote.dto.ReportPostRequest
 import ru.fet1sov.akinorev.data.remote.dto.RepostRequest
@@ -79,6 +80,8 @@ class FakeAcinorevApi : AcinorevApi {
     var onGetKeyCustody: suspend () -> Response<ApiEnvelope<KeyCustodyDto>> = { error(404) }
     var onDepositKeyCustody: suspend (DepositKeyRequest) -> Response<ApiEnvelope<KeyCustodyDto>> = { error(404) }
     var onGetProfile: suspend () -> Response<ApiEnvelope<ProfilePayloadDto>> = { error(404) }
+    var onGetUser: suspend (String) -> Response<ApiEnvelope<PublicUserPayloadDto>> = { error(404) }
+    var onGetEmojiByName: suspend (String) -> Response<ApiEnvelope<EmojiPayloadDto>> = { error(404) }
     var onUpdateProfile: suspend (UpdateProfileRequest) -> Response<ApiEnvelope<ProfilePayloadDto>> = { error(404) }
     var onUpdateLocale: suspend (UpdateLocaleRequest) -> Response<ApiEnvelope<LocaleDto>> = { error(404) }
     var onGetNotificationPreferences: suspend () -> Response<ApiEnvelope<NotificationPreferencesPayloadDto>> =
@@ -186,6 +189,12 @@ class FakeAcinorevApi : AcinorevApi {
         onDepositKeyCustody(body)
 
     override suspend fun getProfile(): Response<ApiEnvelope<ProfilePayloadDto>> = onGetProfile()
+
+    override suspend fun getUser(username: String): Response<ApiEnvelope<PublicUserPayloadDto>> =
+        onGetUser(username)
+
+    override suspend fun getEmojiByName(name: String): Response<ApiEnvelope<EmojiPayloadDto>> =
+        onGetEmojiByName(name)
 
     override suspend fun updateProfile(body: UpdateProfileRequest): Response<ApiEnvelope<ProfilePayloadDto>> =
         onUpdateProfile(body)

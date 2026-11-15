@@ -107,6 +107,6 @@ interface CommunityRepository {
     ): AuthResult<CommentLikeResult>
 }
 
-const val PostsPageSize = 25
+const val PostsPageSize = 10
 const val CommentsPageSize = 10
 const val MaxPostImages = 4

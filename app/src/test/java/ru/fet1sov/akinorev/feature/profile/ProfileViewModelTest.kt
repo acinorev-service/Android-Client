@@ -103,6 +103,36 @@ class ProfileViewModelTest {
     }
 
     @Test
+    fun loadMore_requestsTenPostChunks() = runTest(mainDispatcher) {
+        community.profileResult = AuthResult.Success(
+            fakeCommunityProfile(id = "user-2", username = "other"),
+        )
+        community.postsResults[0] = AuthResult.Success(
+            PostsPage(
+                posts = (0 until 10).map { index -> fakeCommunityPost(id = "post-$index") },
+                hasMore = true,
+            ),
+        )
+        community.postsResults[10] = AuthResult.Success(
+            PostsPage(
+                posts = (10 until 20).map { index -> fakeCommunityPost(id = "post-$index") },
+                hasMore = false,
+            ),
+        )
+
+        val viewModel = viewModel("other")
+        advanceUntilIdle()
+
+        assertEquals(10, viewModel.uiState.value.posts.size)
+
+        viewModel.loadMorePosts()
+        advanceUntilIdle()
+
+        assertEquals(20, viewModel.uiState.value.posts.size)
+        assertEquals(listOf(PostsPageSize to 0, PostsPageSize to 10), community.postsRequests)
+    }
+
+    @Test
     fun loadMore_appendsNextPage() = runTest(mainDispatcher) {
         community.profileResult = AuthResult.Success(
             fakeCommunityProfile(id = "user-2", username = "other"),

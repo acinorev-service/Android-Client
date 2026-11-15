@@ -1,14 +1,7 @@
 package ru.fet1sov.akinorev.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -37,13 +30,16 @@ fun StyledName(
     fallbackColor: Color = Color.Unspecified,
     maxLines: Int = 1,
     overflow: TextOverflow = TextOverflow.Ellipsis,
-    animated: Boolean = true,
 ) {
     val base = remember(nameColor) { parseHexColor(nameColor) }
     val animation = nameAnimation.lowercase()
-    val isAnimated = animated && (animation == AnimationGradient || animation == AnimationRainbow)
+    val progress = when {
+        animation == AnimationRainbow -> LocalNameAnimation.current?.rainbowProgress
+        animation == AnimationGradient -> LocalNameAnimation.current?.gradientProgress
+        else -> null
+    }
 
-    if (!isAnimated) {
+    if (progress == null) {
         Text(
             text = text,
             modifier = modifier,
@@ -67,19 +63,6 @@ fun StyledName(
         measurer.measure(AnnotatedString(text), style = textStyle, maxLines = 1)
             .size.width.toFloat().coerceAtLeast(MinTextWidth)
     }
-    val transition = rememberInfiniteTransition(label = "name-style")
-    val progress by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = if (animation == AnimationRainbow) RainbowDurationMillis else GradientDurationMillis,
-                easing = LinearEasing,
-            ),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "name-style-shift",
-    )
     val span = width * 2f
     val brush = Brush.linearGradient(
         colors = colors,
@@ -136,8 +119,6 @@ internal fun parseHexColor(raw: String): Color? {
 
 private const val AnimationGradient = "gradient"
 private const val AnimationRainbow = "rainbow"
-private const val GradientDurationMillis = 4000
-private const val RainbowDurationMillis = 5000
 private const val MinTextWidth = 1f
 
 private val RainbowColors = listOf(

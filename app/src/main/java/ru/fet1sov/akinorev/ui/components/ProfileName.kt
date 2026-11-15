@@ -1,24 +1,16 @@
 package ru.fet1sov.akinorev.ui.components
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import ru.fet1sov.akinorev.ui.navigation.navigationPalette
-import ru.fet1sov.akinorev.ui.system.LocalUiAnimationsEnabled
 
 private val RainbowColors = listOf(
     Color(0xFFFF4D6D),
@@ -39,13 +31,13 @@ fun ProfileName(
     fontWeight: FontWeight = FontWeight.Black,
 ) {
     val palette = navigationPalette()
-    val animationsEnabled = LocalUiAnimationsEnabled.current
     val base = remember(nameColor) { parseHexColor(nameColor, palette.textPrimary) }
     val animation = nameAnimation.trim().lowercase()
+    val animationState = LocalNameAnimation.current
 
     val style = when (animation) {
         "rainbow" -> TextStyle(
-            brush = animatedBrush(RainbowColors, animationsEnabled),
+            brush = animatedBrush(RainbowColors, animationState?.profileProgress),
             fontSize = fontSize,
             fontWeight = fontWeight,
         )
@@ -53,7 +45,7 @@ fun ProfileName(
         "gradient" -> TextStyle(
             brush = animatedBrush(
                 listOf(shade(base, -30), base, shade(base, 30)),
-                animationsEnabled,
+                animationState?.profileProgress,
             ),
             fontSize = fontSize,
             fontWeight = fontWeight,
@@ -74,19 +66,8 @@ fun ProfileName(
     )
 }
 
-@Composable
-private fun animatedBrush(colors: List<Color>, animationsEnabled: Boolean): Brush {
-    if (!animationsEnabled) return Brush.linearGradient(colors)
-
-    val transition = rememberInfiniteTransition(label = "profileName")
-    val progress by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 3200, easing = LinearEasing),
-        ),
-        label = "profileNameProgress",
-    )
+private fun animatedBrush(colors: List<Color>, progress: Float?): Brush {
+    if (progress == null) return Brush.linearGradient(colors)
 
     val shift = progress * 480f
     return Brush.linearGradient(

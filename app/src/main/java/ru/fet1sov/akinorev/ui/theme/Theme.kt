@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.fet1sov.akinorev.data.settings.AppSettingsRepository
 import ru.fet1sov.akinorev.model.AppTheme
+import ru.fet1sov.akinorev.ui.components.LocalNameAnimation
+import ru.fet1sov.akinorev.ui.components.rememberNameAnimation
 import ru.fet1sov.akinorev.ui.navigation.DarkNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.LightNavigationPalette
 import ru.fet1sov.akinorev.ui.navigation.LocalNavigationPalette
@@ -73,10 +75,12 @@ fun AkinorevTheme(
     val darkTheme = theme.isDark(isSystemInDarkTheme())
     val palette = if (darkTheme) DarkNavigationPalette else LightNavigationPalette
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val nameAnimation = rememberNameAnimation(animationsEnabled)
 
     CompositionLocalProvider(
         LocalNavigationPalette provides palette,
         LocalUiAnimationsEnabled provides animationsEnabled,
+        LocalNameAnimation provides nameAnimation,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

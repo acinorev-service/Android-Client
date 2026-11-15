@@ -60,7 +60,6 @@ fun PostCard(
     canManage: Boolean,
     isPending: Boolean,
     isReported: Boolean,
-    animateNames: Boolean = true,
     onOpenProfile: (String) -> Unit,
     onLike: () -> Unit,
     onCommentsCountChanged: (Int) -> Unit,
@@ -120,7 +119,6 @@ fun PostCard(
                     )
                     AuthorName(
                         author = headerAuthor,
-                        animated = animateNames,
                         modifier = Modifier.weight(1f, fill = false),
                     )
                     if (isRepost) {
@@ -204,7 +202,6 @@ fun PostCard(
                     comments = target.commentsPreview,
                     emojiUrls = emojiUrls,
                     total = target.commentsCount,
-                    animateNames = animateNames,
                     onShowAll = { commentsOpen = true },
                 )
             }
@@ -227,7 +224,6 @@ fun PostCard(
 private fun AuthorName(
     author: PostAuthor,
     modifier: Modifier = Modifier,
-    animated: Boolean = true,
 ) {
     val palette = navigationPalette()
     StyledName(
@@ -240,7 +236,6 @@ private fun AuthorName(
         fallbackColor = palette.textPrimary,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        animated = animated,
     )
 }
 
@@ -437,7 +432,6 @@ private fun CommentsPreview(
     comments: List<PostComment>,
     emojiUrls: Map<String, String>,
     total: Int,
-    animateNames: Boolean,
     onShowAll: () -> Unit,
 ) {
     val palette = navigationPalette()
@@ -454,7 +448,7 @@ private fun CommentsPreview(
                 .background(palette.barBorder.copy(alpha = 0.6f)),
         )
         comments.forEach { comment ->
-            CommentPreviewItem(comment = comment, emojiUrls = emojiUrls, animated = animateNames)
+            CommentPreviewItem(comment = comment, emojiUrls = emojiUrls)
         }
         if (total > comments.size) {
             Surface(
@@ -478,7 +472,6 @@ private fun CommentsPreview(
 private fun CommentPreviewItem(
     comment: PostComment,
     emojiUrls: Map<String, String>,
-    animated: Boolean = true,
 ) {
     val palette = navigationPalette()
     val author = comment.author
@@ -510,7 +503,6 @@ private fun CommentPreviewItem(
                         fontWeight = FontWeight.Bold,
                         fallbackColor = palette.textPrimary,
                         maxLines = 1,
-                        animated = animated,
                     )
                 } else {
                     Text(

@@ -436,7 +436,6 @@ private fun ProfileContent(
                             canManage = uiState.canManagePosts,
                             isPending = post.id in uiState.pendingPostIds,
                             isReported = post.target.id in uiState.reportedPostIds,
-                            animateNames = !listState.isScrollInProgress,
                             onOpenProfile = onOpenProfile,
                             onLike = { onLike(post.id) },
                             onCommentsCountChanged = { count -> onCommentsCountChanged(post.id, count) },

@@ -38,10 +38,12 @@ class CommunityViewModel(
     private val authRepository: AuthRepository,
     private val emojisRepository: EmojisRepository,
     private val languageTagProvider: () -> String = { Locale.getDefault().language },
+    initialMode: CommunityFeedMode = CommunityFeedMode.Popular,
 ) : ViewModel() {
     private val initialSession = authRepository.session.value
     private val mutableUiState = MutableStateFlow(
         CommunityUiState(
+            mode = initialMode,
             isAuthenticated = initialSession is SessionState.Authorized,
             isAuthPending = initialSession is SessionState.Loading,
             isLoading = true,
@@ -519,16 +521,19 @@ class CommunityViewModel(
     companion object {
         private const val ReportCommentMaxLength = 500
 
-        fun factory(): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val application = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AcinorevApplication
-                CommunityViewModel(
-                    communityRepository = application.container.communityRepository,
-                    authRepository = application.container.authRepository,
-                    emojisRepository = application.container.emojisRepository,
-                )
+        fun factory(mode: CommunityFeedMode = CommunityFeedMode.Popular): ViewModelProvider.Factory =
+            viewModelFactory {
+                initializer {
+                    val application =
+                        this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as AcinorevApplication
+                    CommunityViewModel(
+                        communityRepository = application.container.communityRepository,
+                        authRepository = application.container.authRepository,
+                        emojisRepository = application.container.emojisRepository,
+                        initialMode = mode,
+                    )
+                }
             }
-        }
     }
 }
 

@@ -72,6 +72,7 @@ import ru.fet1sov.akinorev.feature.profile.components.postActionErrorText
 import ru.fet1sov.akinorev.feature.profile.components.profileActionErrorText
 import ru.fet1sov.akinorev.feature.profile.components.profileLoadErrorText
 import ru.fet1sov.akinorev.model.PostLocales
+import ru.fet1sov.akinorev.ui.components.rememberRefreshWithHaptic
 import ru.fet1sov.akinorev.ui.icons.AppIcon
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
 import ru.fet1sov.akinorev.ui.navigation.NavigationPalette
@@ -303,9 +304,11 @@ private fun ProfileContent(
     onDelete: (String) -> Unit,
     onRetryAction: () -> Unit,
 ) {
+    val refreshWithHaptic = rememberRefreshWithHaptic(onRefresh)
+
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        onRefresh = onRefresh,
+        onRefresh = refreshWithHaptic,
         modifier = Modifier.fillMaxSize(),
     ) {
         LazyColumn(

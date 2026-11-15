@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHost
@@ -30,17 +33,24 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +68,7 @@ import ru.fet1sov.akinorev.feature.profile.components.RepostDialog
 import ru.fet1sov.akinorev.feature.profile.components.postActionErrorText
 import ru.fet1sov.akinorev.model.CommunityFeedMode
 import ru.fet1sov.akinorev.ui.components.UnauthorizedAccess
+import ru.fet1sov.akinorev.ui.components.rememberRefreshWithHaptic
 import ru.fet1sov.akinorev.ui.icons.AppIcon
 import ru.fet1sov.akinorev.ui.icons.AppIconKind
 import ru.fet1sov.akinorev.ui.navigation.navigationPalette
@@ -67,14 +78,123 @@ import ru.fet1sov.akinorev.ui.navigation.navigationPalette
 fun CommunityScreen(
     onOpenProfile: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CommunityViewModel = viewModel(factory = CommunityViewModel.factory()),
+) {
+    val palette = navigationPalette()
+    val tabs = CommunityFeedMode.entries
+    val pagerState = rememberPagerState { tabs.size }
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val listStates = remember(tabs) { List(tabs.size) { LazyListState() } }
+    var headerHeightPx by remember { mutableIntStateOf(0) }
+    val headerHeight = if (headerHeightPx > 0) {
+        with(density) { headerHeightPx.toDp() }
+    } else {
+        132.dp
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(palette.screen)
+            .clipToBounds(),
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            key = { tabs[it] },
+            beyondViewportPageCount = 1,
+        ) { page ->
+            CommunityFeedPage(
+                mode = tabs[page],
+                onOpenProfile = onOpenProfile,
+                listState = listStates[page],
+                headerHeight = headerHeight,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        CommunityHeader(
+            mode = tabs[pagerState.currentPage],
+            onSelectMode = { mode ->
+                val index = tabs.indexOf(mode)
+                if (index >= 0) {
+                    scope.launch { pagerState.animateScrollToPage(index) }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset {
+                    val state = listStates[pagerState.settledPage]
+                    val scrolled = if (state.firstVisibleItemIndex > 0) {
+                        headerHeightPx
+                    } else {
+                        state.firstVisibleItemScrollOffset.coerceAtMost(headerHeightPx)
+                    }
+                    IntOffset(0, -scrolled)
+                }
+                .onSizeChanged { headerHeightPx = it.height },
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CommunityHeader(
+    mode: CommunityFeedMode,
+    onSelectMode: (CommunityFeedMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val palette = navigationPalette()
+    Column(
+        modifier = modifier
+            .background(palette.screen)
+            .padding(top = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.community_feed_title).uppercase(),
+                color = palette.textPrimary,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Black,
+            )
+            Text(
+                text = stringResource(R.string.community_feed_subtitle),
+                color = palette.textMuted,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+            )
+        }
+
+        FeedModeRow(
+            mode = mode,
+            onSelect = onSelectMode,
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 10.dp, bottom = 8.dp),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CommunityFeedPage(
+    mode: CommunityFeedMode,
+    onOpenProfile: (String) -> Unit,
+    listState: LazyListState,
+    headerHeight: Dp,
+    modifier: Modifier = Modifier,
+    viewModel: CommunityViewModel = viewModel(
+        key = "community-${mode.name}",
+        factory = CommunityViewModel.factory(mode),
+    ),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val palette = navigationPalette()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val listState = rememberLazyListState()
 
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -117,46 +237,18 @@ fun CommunityScreen(
             .fillMaxSize()
             .background(palette.screen),
     ) {
+        val refreshWithHaptic = rememberRefreshWithHaptic(viewModel::refresh)
+
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
-            onRefresh = viewModel::refresh,
+            onRefresh = refreshWithHaptic,
             modifier = Modifier.fillMaxSize(),
         ) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 20.dp),
+                contentPadding = PaddingValues(top = headerHeight + 8.dp, bottom = 20.dp),
             ) {
-                item(key = HeaderKey) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.community_feed_title).uppercase(),
-                            color = palette.textPrimary,
-                            fontSize = 26.sp,
-                            fontWeight = FontWeight.Black,
-                        )
-                        Text(
-                            text = stringResource(R.string.community_feed_subtitle),
-                            color = palette.textMuted,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        )
-                    }
-                }
-
-                item(key = FiltersKey) {
-                    FeedModeRow(
-                        mode = uiState.mode,
-                        onSelect = viewModel::selectMode,
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                    )
-                }
-
                 val actionError = uiState.actionError
                 if (actionError != null) {
                     item(key = ActionErrorKey) {
@@ -454,8 +546,6 @@ private fun FeedFooter(
 
 private val DangerColor = Color(0xFFE5484D)
 private val SkeletonKeys = listOf("community-skeleton-1", "community-skeleton-2", "community-skeleton-3")
-private const val HeaderKey = "community-header"
-private const val FiltersKey = "community-filters"
 private const val ActionErrorKey = "community-action-error"
 private const val UnauthorizedKey = "community-unauthorized"
 private const val LoadErrorKey = "community-load-error"

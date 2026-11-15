@@ -68,6 +68,7 @@ import ru.fet1sov.akinorev.feature.search.SearchUiState
 import ru.fet1sov.akinorev.feature.search.SearchViewModel
 import ru.fet1sov.akinorev.model.SearchCategory
 import ru.fet1sov.akinorev.model.SearchResult
+import ru.fet1sov.akinorev.ui.components.rememberRefreshWithHaptic
 import ru.fet1sov.akinorev.ui.components.EmojiRichText
 import ru.fet1sov.akinorev.ui.components.RemoteImage
 import ru.fet1sov.akinorev.ui.components.SkeletonBlock
@@ -160,9 +161,11 @@ private fun CatalogPane(
     onRefresh: () -> Unit,
     onPlay: (String, String) -> Unit,
 ) {
+    val refreshWithHaptic = rememberRefreshWithHaptic(onRefresh)
+
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        onRefresh = onRefresh,
+        onRefresh = refreshWithHaptic,
         modifier = Modifier.fillMaxSize(),
     ) {
         LazyVerticalGrid(

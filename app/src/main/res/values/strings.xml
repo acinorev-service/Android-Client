@@ -232,6 +232,8 @@
     <string name="community_profile_follow">Follow</string>
     <string name="community_profile_unfollow">Unfollow</string>
     <string name="community_profile_online">Online</string>
+    <string name="community_profile_online_mobile">Online from phone</string>
+    <string name="community_profile_online_desktop">Online from desktop</string>
     <string name="community_profile_offline">Offline</string>
     <string name="community_profile_blocked">This profile is restricted by privacy settings</string>
     <string name="community_profile_block">Block user</string>

@@ -47,15 +47,15 @@ fun ProfilePresence(
         online -> OnlineColor
         else -> OfflineColor
     }
+    val deviceKind = DeviceKind.from(if (online) device else lastSeenDevice)
     val label = when {
         isBlocked -> stringResource(R.string.community_profile_blocked)
-        online -> stringResource(R.string.community_profile_online)
+        online -> when (deviceKind) {
+            DeviceKind.Mobile -> stringResource(R.string.community_profile_online_mobile)
+            DeviceKind.Desktop -> stringResource(R.string.community_profile_online_desktop)
+            DeviceKind.Unknown -> stringResource(R.string.community_profile_online)
+        }
         else -> rememberLastSeenLabel(lastSeenMillis)
-    }
-    val showPhone = if (online) {
-        !isSelf && device == MobileDevice
-    } else {
-        lastSeenDevice == MobileDevice
     }
 
     Row(
@@ -63,15 +63,21 @@ fun ProfilePresence(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (showPhone) {
-            Icon(
+        when {
+            isBlocked -> PresenceDot(color = color, animated = false)
+            deviceKind == DeviceKind.Mobile -> Icon(
                 imageVector = AppIcons.Phone,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(width = 14.dp, height = 16.dp),
             )
-        } else {
-            PresenceDot(color = color, animated = online && LocalUiAnimationsEnabled.current)
+            deviceKind == DeviceKind.Desktop -> Icon(
+                imageVector = AppIcons.Desktop,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(16.dp),
+            )
+            else -> PresenceDot(color = color, animated = online && LocalUiAnimationsEnabled.current)
         }
 
         Spacer(modifier = Modifier.width(6.dp))
@@ -135,7 +141,20 @@ private fun PresenceDot(
     }
 }
 
-private const val MobileDevice = "mobile"
+private enum class DeviceKind {
+    Mobile,
+    Desktop,
+    Unknown;
+
+    companion object {
+        fun from(raw: String): DeviceKind = when (raw.trim().lowercase()) {
+            "mobile" -> Mobile
+            "desktop" -> Desktop
+            else -> Unknown
+        }
+    }
+}
+
 private val OnlineColor = Color(0xFF16A34A)
 private val OfflineColor = Color(0xFF9CA3AF)
 private val BlockedColor = Color(0xFFEF4444)

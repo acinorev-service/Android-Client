@@ -232,6 +232,8 @@
     <string name="community_profile_follow">Отслеживать</string>
     <string name="community_profile_unfollow">Отписаться</string>
     <string name="community_profile_online">В сети</string>
+    <string name="community_profile_online_mobile">В сети с телефона</string>
+    <string name="community_profile_online_desktop">В сети с компьютера</string>
     <string name="community_profile_offline">Не в сети</string>
     <string name="community_profile_blocked">Профиль ограничен настройками приватности</string>
     <string name="community_profile_block">Заблокировать</string>

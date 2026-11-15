@@ -21,6 +21,8 @@ class AppIconsTest {
             AppIcons.ArrowLeft,
             AppIcons.Plus,
             AppIcons.Trashbin,
+            AppIcons.Phone,
+            AppIcons.Desktop,
         )
 
         vectors.forEach { vector ->

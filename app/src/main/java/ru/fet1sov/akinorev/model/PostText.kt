@@ -37,24 +37,26 @@ fun splitPostContent(
 ): List<PostContentPart> {
     val tokens = mutableListOf<PostContentPart>()
     var last = 0
-    var usedImages = 0
-    ImageMarker.findAll(source).forEach { match ->
-        val index = match.groupValues[1].toIntOrNull() ?: return@forEach
-        val image = images.getOrNull(index) ?: return@forEach
-        if (match.range.first > last) {
-            tokens += PostContentPart.Text(source.substring(last, match.range.first))
+    var hasMarker = false
+    imageMarkers(source).forEach { marker ->
+        hasMarker = true
+        if (marker.start > last) {
+            tokens += PostContentPart.Text(source.substring(last, marker.start))
         }
-        tokens += PostContentPart.Images(listOf(image))
-        usedImages += 1
-        last = match.range.last + 1
+        val image = images.getOrNull(marker.index)
+        if (image != null) {
+            tokens += PostContentPart.Images(listOf(image))
+        }
+        last = marker.end
     }
     if (last < source.length) {
         tokens += PostContentPart.Text(source.substring(last))
     }
-    val referenced = source.contains(ImageMarker)
-    val trailing = if (referenced) images.filterIndexed { index, _ -> index >= usedImages } else emptyList()
+    val trailing = if (hasMarker) emptyList() else images
     if (trailing.isNotEmpty()) tokens += PostContentPart.Images(trailing)
-    if (tokens.isEmpty() && source.isNotBlank()) tokens += PostContentPart.Text(source)
+    if (tokens.isEmpty() && source.isNotBlank() && !hasMarker) {
+        tokens += PostContentPart.Text(source)
+    }
     return groupConsecutiveImages(tokens)
 }
 
@@ -62,11 +64,23 @@ fun rebuildImageMarkers(
     content: Map<String, String>,
     imageCount: Int,
 ): Map<String, String> = content.mapValues { (_, text) ->
+    rebuildImageMarkers(text, imageCount)
+}
+
+private fun rebuildImageMarkers(text: String, imageCount: Int): String {
+    val builder = StringBuilder(text.length)
+    var last = 0
     var index = 0
-    ImageMarker.replace(text) { match ->
-        val current = index++
-        if (current < imageCount) "[[img:$current]]" else ""
+    imageMarkers(text).forEach { marker ->
+        builder.append(text, last, marker.start)
+        if (index < imageCount) {
+            builder.append(MarkerPrefix).append(index).append(MarkerSuffix)
+        }
+        index += 1
+        last = marker.end
     }
+    builder.append(text, last, text.length)
+    return builder.toString()
 }
 
 fun appendImageMarkers(
@@ -106,4 +120,42 @@ private fun groupConsecutiveImages(parts: List<PostContentPart>): List<PostConte
 }
 
 internal val EmojiMarker = Regex("(^|\\s):([a-zA-Z0-9_]{1,32}):(?=\$|\\s|[.,!?])")
-private val ImageMarker = Regex("\\[\\[img:(\\d+)]]")
+
+private class ImageMarkerMatch(
+    val start: Int,
+    val end: Int,
+    val index: Int,
+)
+
+private fun imageMarkers(source: String): List<ImageMarkerMatch> {
+    val markers = mutableListOf<ImageMarkerMatch>()
+    var searchFrom = 0
+
+    while (true) {
+        val start = source.indexOf(MarkerPrefix, searchFrom)
+        if (start < 0) break
+
+        val digitsStart = start + MarkerPrefix.length
+        var cursor = digitsStart
+        while (cursor < source.length && source[cursor].isDigit()) cursor += 1
+
+        val index = if (cursor > digitsStart && source.startsWith(MarkerSuffix, cursor)) {
+            source.substring(digitsStart, cursor).toIntOrNull()
+        } else {
+            null
+        }
+
+        if (index != null) {
+            val end = cursor + MarkerSuffix.length
+            markers += ImageMarkerMatch(start = start, end = end, index = index)
+            searchFrom = end
+        } else {
+            searchFrom = start + 1
+        }
+    }
+
+    return markers
+}
+
+private const val MarkerPrefix = "[[img:"
+private const val MarkerSuffix = "]]"

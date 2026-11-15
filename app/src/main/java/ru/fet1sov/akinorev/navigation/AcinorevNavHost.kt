@@ -133,7 +133,20 @@ fun AcinorevNavHost(
         }
         composable<ProfileDestination> { entry ->
             val destination = entry.toRoute<ProfileDestination>()
-            ProfileScreen(username = destination.username)
+            ProfileScreen(
+                username = destination.username,
+                onOpenProfile = { username ->
+                    navController.navigate(ProfileDestination(username)) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileRenamed = { username ->
+                    navController.navigate(ProfileDestination(username)) {
+                        popUpTo<ProfileDestination> { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+            )
         }
     }
 }
